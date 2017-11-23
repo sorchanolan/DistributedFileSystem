@@ -11,7 +11,13 @@ public class ApiResource {
   @GET
   @Path("/read-file/{fileName}")
   @Produces()
-  public Optional<File> readFile(String fileName) {
+  public Optional<File> readFile(@PathParam("fileName") String fileName) {
     return fileDao.getFile(fileName);
+  }
+
+  @POST
+  @Path(("/write-file/{fileName}"))
+  public void writeFile(@PathParam("fileName") String fileName, File updatedFile) {
+    fileDao.getFile(fileName);
   }
 }
