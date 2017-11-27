@@ -1,5 +1,5 @@
 .idea/*
-FileSystem/.idea
-FileSystem/target
+FileServer/.idea
+FileServer/target
 ClientProxy/.idea
 ClientProxy/target
