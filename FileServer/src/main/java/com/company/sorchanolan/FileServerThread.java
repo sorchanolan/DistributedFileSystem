@@ -1,5 +1,8 @@
 package com.company.sorchanolan;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -13,11 +16,13 @@ public class FileServerThread extends Thread implements Runnable {
   private int port = -1;
   private BufferedReader inFromClient = null;
   private DataOutputStream outToClient = null;
+  private ObjectMapper mapper = new ObjectMapper();
 
   public FileServerThread(FileServer server, Socket socket) {
     this.server = server;
     this.socket = socket;
     port = socket.getPort();
+    mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
   }
 
   public void run() {
@@ -43,8 +48,10 @@ public class FileServerThread extends Thread implements Runnable {
   }
 
   private void processRequest(String clientMessage) {
-    String inputs[] = clientMessage.split(" ", 2);
-    String command = inputs[0];
-    String fileName = inputs[1];
+    try {
+      Request request = mapper.readValue(clientMessage, Request.class);
+    } catch (IOException e) {
+      System.out.println("Cannot map input to request object" + e);
+    }
   }
 }
