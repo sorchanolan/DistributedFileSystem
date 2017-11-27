@@ -68,7 +68,7 @@ public class Client {
   }
 
   private Optional<String> editFile(String fileName) {
-    Request request = new Request("write", "rw", fileName, "");
+    Request request = new Request("read", "rw", fileName, "");
     try {
       return Optional.ofNullable(mapper.writeValueAsString(request));
     } catch (JsonProcessingException e) {
