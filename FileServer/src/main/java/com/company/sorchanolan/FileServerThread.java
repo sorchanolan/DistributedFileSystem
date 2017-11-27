@@ -23,6 +23,14 @@ public class FileServerThread extends Thread implements Runnable {
   public void run() {
     System.out.println("Server Thread " + port + " running.");
     openComms();
+
+    try {
+      String clientMessage = inFromClient.readLine();
+      System.out.println(clientMessage);
+      processRequest(clientMessage);
+    } catch (IOException e) {
+      System.out.println(e);
+    }
   }
 
   private void openComms() {
@@ -32,5 +40,11 @@ public class FileServerThread extends Thread implements Runnable {
     } catch (IOException e) {
       System.out.println(e);
     }
+  }
+
+  private void processRequest(String clientMessage) {
+    String inputs[] = clientMessage.split(" ", 2);
+    String command = inputs[0];
+    String fileName = inputs[1];
   }
 }
