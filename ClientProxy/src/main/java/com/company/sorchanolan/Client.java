@@ -15,22 +15,33 @@ import java.util.Optional;
 import java.util.Scanner;
 
 public class Client {
-  Socket clientSocket = new Socket("localhost", 6543);
-  BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-  DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
-  BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+  Socket socket = null;
+  DataOutputStream outToServer = null;
+  BufferedReader inFromServer = null;
   ObjectMapper mapper = new ObjectMapper();
 
   public static void main(String[] args) throws Exception {
     new Client();
   }
 
+  private void openComms() {
+    try {
+      inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+      outToServer = new DataOutputStream(socket.getOutputStream());
+    } catch (IOException e) {
+      System.out.println(e);
+    }
+  }
+
   public Client() throws Exception {
+    socket = new Socket("localhost", 6543);
+    openComms();
     Scanner input =new Scanner(System.in);
     List<String> commandTypes = Arrays.asList("edit", "read", "save");
     mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
     while (true) {
+      System.out.println("Enter command:");
       String command = input.next();
       String fileName = "";
 

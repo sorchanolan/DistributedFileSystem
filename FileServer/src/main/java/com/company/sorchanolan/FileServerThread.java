@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,12 +32,14 @@ public class FileServerThread extends Thread implements Runnable {
     System.out.println("Server Thread " + port + " running.");
     openComms();
 
-    try {
-      String clientMessage = inFromClient.readLine();
-      System.out.println(clientMessage);
-      processRequest(clientMessage);
-    } catch (IOException e) {
-      System.out.println(e);
+    while (running) {
+      try {
+        String clientMessage = inFromClient.readLine();
+        System.out.println(clientMessage);
+        processRequest(clientMessage);
+      } catch (IOException e) {
+        System.out.println(e);
+      }
     }
   }
 
@@ -66,16 +69,21 @@ public class FileServerThread extends Thread implements Runnable {
 
   private void processReadRequest(Request request) {
     List<String> listOfLines = new ArrayList<>();
-    try {
-      listOfLines = Files.readAllLines(Paths.get(request.getFileName()));
-    } catch (IOException e) {
-      e.printStackTrace();
+    if (Files.exists(Paths.get(request.getFileName()))) {
+      try {
+        listOfLines = Files.readAllLines(Paths.get(request.getFileName()));
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    } else {
+      Paths.get(request.getFileName());
     }
 
     request.setBody(listOfLines.toString());
     try {
       try {
-        outToClient.writeBytes(mapper.writeValueAsString(request));
+        System.out.println(mapper.writeValueAsString(request));
+        outToClient.writeBytes(mapper.writeValueAsString(request) + "\n");
       } catch (JsonProcessingException jpe) {
         System.out.println("Cannot write json request as string: " + jpe);
       }
