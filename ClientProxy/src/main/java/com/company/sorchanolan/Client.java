@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -19,6 +20,7 @@ public class Client {
   DataOutputStream outToServer = null;
   BufferedReader inFromServer = null;
   ObjectMapper mapper = new ObjectMapper();
+  Editor editor = new Editor();
 
   public static void main(String[] args) throws Exception {
     new Client();
@@ -34,6 +36,7 @@ public class Client {
   }
 
   public Client() throws Exception {
+    EventQueue.invokeLater(() -> editor.display(new Request()));
     socket = new Socket("localhost", 6543);
     openComms();
     Scanner input =new Scanner(System.in);
@@ -69,6 +72,7 @@ public class Client {
         String serverResponse = inFromServer.readLine();
         Request serverRequest = mapper.readValue(serverResponse, Request.class);
         System.out.println(serverResponse);
+        EventQueue.invokeLater(() -> editor.display(serverRequest));
 
       } else {
         input.nextLine();
@@ -79,7 +83,7 @@ public class Client {
   }
 
   private Optional<String> editFile(String fileName) {
-    Request request = new Request("read", "rw", fileName, "");
+    Request request = new Request(false, true, fileName, "");
     try {
       return Optional.ofNullable(mapper.writeValueAsString(request));
     } catch (JsonProcessingException e) {
@@ -89,7 +93,7 @@ public class Client {
   }
 
   private Optional<String> readFile(String fileName) {
-    Request request = new Request("read", "ro", fileName, "");
+    Request request = new Request(false, false, fileName, "");
     try {
       return Optional.ofNullable(mapper.writeValueAsString(request));
     } catch (JsonProcessingException e) {
@@ -99,7 +103,7 @@ public class Client {
   }
 
   private Optional<String> saveFile(String fileName, String body) {
-    Request request = new Request("write", "rw", fileName, body);
+    Request request = new Request(true, true, fileName, body);
     try {
       return Optional.ofNullable(mapper.writeValueAsString(request));
     } catch (JsonProcessingException e) {

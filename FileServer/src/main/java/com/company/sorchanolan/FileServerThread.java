@@ -60,10 +60,10 @@ public class FileServerThread extends Thread implements Runnable {
       System.out.println("Cannot map input to request object" + e);
     }
 
-    if (request.getCommand().equals("read")) {
-      processReadRequest(request);
-    } else if (request.getCommand().equals("write")) {
+    if (request.getWriteCommand()) {
       processWriteRequest(request);
+    } else {
+      processReadRequest(request);
     }
   }
 
