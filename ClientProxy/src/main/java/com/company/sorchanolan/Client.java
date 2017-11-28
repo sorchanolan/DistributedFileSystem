@@ -36,7 +36,6 @@ public class Client {
   }
 
   public Client() throws Exception {
-    EventQueue.invokeLater(() -> editor.display(new Request()));
     socket = new Socket("localhost", 6543);
     openComms();
     Scanner input =new Scanner(System.in);
