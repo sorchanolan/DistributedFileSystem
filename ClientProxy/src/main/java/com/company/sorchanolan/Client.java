@@ -19,8 +19,9 @@ public class Client {
   Socket socket = null;
   DataOutputStream outToServer = null;
   BufferedReader inFromServer = null;
+  Editor editor = null;
+  RequestManager requestManager = new RequestManager();
   ObjectMapper mapper = new ObjectMapper();
-  Editor editor = new Editor();
 
   public static void main(String[] args) throws Exception {
     new Client();
@@ -38,11 +39,12 @@ public class Client {
   public Client() throws Exception {
     socket = new Socket("localhost", 6543);
     openComms();
-    Scanner input =new Scanner(System.in);
+    Scanner input = new Scanner(System.in);
     List<String> commandTypes = Arrays.asList("edit", "read", "save");
-    mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
     while (true) {
+      editor = new Editor(outToServer, inFromServer);
+      EventQueue.invokeLater(() -> editor.display(new Request()));
       System.out.println("Enter command:");
       String command = input.next();
       String fileName = "";
@@ -52,11 +54,11 @@ public class Client {
         Optional<String> response = Optional.empty();
 
         switch (command) {
-          case ("edit") : response = editFile(fileName);
+          case ("edit") : response = requestManager.editFile(fileName);
           break;
-          case ("read") : response = readFile(fileName);
+          case ("read") : requestManager.readFile(fileName, outToServer, inFromServer);
           break;
-          case ("save") : response = saveFile(fileName, input.next());
+          case ("save") : response = requestManager.saveFile(fileName, input.next());
           break;
         }
 
@@ -79,35 +81,5 @@ public class Client {
 
       System.out.println(command + " " + fileName);
     }
-  }
-
-  private Optional<String> editFile(String fileName) {
-    Request request = new Request(false, true, fileName, "");
-    try {
-      return Optional.ofNullable(mapper.writeValueAsString(request));
-    } catch (JsonProcessingException e) {
-      System.out.println("Cannot map request to JSON object" + e);
-    }
-    return Optional.empty();
-  }
-
-  private Optional<String> readFile(String fileName) {
-    Request request = new Request(false, false, fileName, "");
-    try {
-      return Optional.ofNullable(mapper.writeValueAsString(request));
-    } catch (JsonProcessingException e) {
-      System.out.println("Cannot map request to JSON object" + e);
-    }
-    return Optional.empty();
-  }
-
-  private Optional<String> saveFile(String fileName, String body) {
-    Request request = new Request(true, true, fileName, body);
-    try {
-      return Optional.ofNullable(mapper.writeValueAsString(request));
-    } catch (JsonProcessingException e) {
-      System.out.println("Cannot map request to JSON object" + e);
-    }
-    return Optional.empty();
   }
 }
