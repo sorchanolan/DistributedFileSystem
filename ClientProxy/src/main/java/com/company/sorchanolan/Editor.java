@@ -5,9 +5,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 
 public class Editor implements ActionListener {
   private JFrame frame = null;
@@ -16,13 +13,12 @@ public class Editor implements ActionListener {
   private JMenuItem edit = new JMenuItem("Edit");
   private JMenuItem save = new JMenuItem("Save");
   private String fileName = "";
-  private RequestManager requestManager = new RequestManager();
-  private DataOutputStream outToServer = null;
-  private BufferedReader inFromServer = null;
+  private RequestManager requestManager = null;
+  private Request request = new Request();
 
-  public Editor(DataOutputStream outToServer, BufferedReader inFromServer) {
-    this.outToServer = outToServer;
-    this.inFromServer = inFromServer;
+  public Editor() throws Exception {
+    requestManager = new RequestManager();
+    display(request);
   }
 
   private JPanel createPanel(Request request) {
@@ -70,7 +66,7 @@ public class Editor implements ActionListener {
       fileName = JOptionPane.showInputDialog(frame, "Please enter file name to open:");
       Request request = new Request();
       try {
-        request = requestManager.readFile(fileName + ".txt", outToServer, inFromServer);
+        request = requestManager.readFile(fileName + ".txt");
       } catch (Exception e) {
         e.printStackTrace();
       }
