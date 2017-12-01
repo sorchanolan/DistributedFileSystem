@@ -9,7 +9,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
-import java.util.Optional;
 
 public class RequestManager {
   private Socket socket = null;
@@ -32,8 +31,8 @@ public class RequestManager {
     }
   }
 
-  public Request editFile(String fileName) throws Exception {
-    Request request = new Request(false, true, fileName, "");
+  public Request newFile(String fileName) throws Exception {
+    Request request = new Request(false, false, fileName, "");
     String requestString = mapper.writeValueAsString(request);
     outToServer.writeBytes(requestString + "\n");
     return mapper.readValue(inFromServer.readLine(), Request.class);
@@ -46,13 +45,17 @@ public class RequestManager {
     return mapper.readValue(inFromServer.readLine(), Request.class);
   }
 
-  public Optional<String> saveFile(String fileName, String body) {
-    Request request = new Request(true, true, fileName, body);
-    try {
-      return Optional.ofNullable(mapper.writeValueAsString(request));
-    } catch (JsonProcessingException e) {
-      System.out.println("Cannot map request to JSON object" + e);
-    }
-    return Optional.empty();
+  public Request editFile(String fileName) throws Exception {
+    Request request = new Request(false, true, fileName, "");
+    String requestString = mapper.writeValueAsString(request);
+    outToServer.writeBytes(requestString + "\n");
+    return mapper.readValue(inFromServer.readLine(), Request.class);
+  }
+
+  public Request saveFile(String fileName, String body) throws Exception {
+    Request request = new Request(true, false, fileName, body);
+    String requestString = mapper.writeValueAsString(request);
+    outToServer.writeBytes(requestString + "\n");
+    return mapper.readValue(inFromServer.readLine(), Request.class);
   }
 }

@@ -8,10 +8,12 @@ import java.awt.event.WindowEvent;
 
 public class Editor implements ActionListener {
   private JFrame frame = null;
+  private JTextArea editor = null;
+  private JPanel panel = null;
   private JMenuItem newFile = new JMenuItem("New");
   private JMenuItem open = new JMenuItem("Open");
   private JMenuItem edit = new JMenuItem("Edit");
-  private JMenuItem save = new JMenuItem("Save");
+  private JMenuItem save = new JMenuItem("Finish Editing");
   private String fileName = "";
   private RequestManager requestManager = null;
   private Request request = new Request();
@@ -22,8 +24,8 @@ public class Editor implements ActionListener {
   }
 
   private JPanel createPanel(Request request) {
-    JPanel panel = new JPanel(new GridLayout());
-    JTextArea editor = new JTextArea(30, 80);
+    panel = new JPanel(new GridLayout());
+    editor = new JTextArea(30, 80);
     panel.add(new JScrollPane(editor));
     editor.setLineWrap(true);
     editor.setWrapStyleWord(true);
@@ -58,8 +60,14 @@ public class Editor implements ActionListener {
   public void actionPerformed(ActionEvent ae) {
     if (ae.getSource() == newFile) {
       fileName = JOptionPane.showInputDialog(frame, "Please enter file name:");
+      Request request = new Request();
+      try {
+        request = requestManager.readFile(fileName + ".txt");
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
       frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-      display(new Request(false, true, fileName + ".txt", ""));
+      display(request);
     }
 
     if (ae.getSource() == open) {
@@ -67,6 +75,28 @@ public class Editor implements ActionListener {
       Request request = new Request();
       try {
         request = requestManager.readFile(fileName + ".txt");
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+      display(request);
+    }
+
+    if (ae.getSource() == edit) {
+      Request request = new Request();
+      try {
+        request = requestManager.editFile(fileName + ".txt");
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+      display(request);
+    }
+
+    if (ae.getSource() == save) {
+      Request request = new Request();
+      try {
+        request = requestManager.saveFile(fileName + ".txt", editor.getText());
       } catch (Exception e) {
         e.printStackTrace();
       }

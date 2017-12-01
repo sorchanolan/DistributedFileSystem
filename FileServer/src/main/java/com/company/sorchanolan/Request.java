@@ -51,4 +51,9 @@ public class Request {
   public void setBody(String body) {
     this.body = body;
   }
+
+  public Request withAccess(boolean access) {
+    this.setWriteAccess(access);
+    return this;
+  }
 }
