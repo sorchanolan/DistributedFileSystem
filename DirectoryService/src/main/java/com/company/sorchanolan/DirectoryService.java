@@ -6,18 +6,22 @@ import java.net.Socket;
 
 public class DirectoryService implements Runnable {
   private Thread thread = null;
-  private ServerSocket welcomeSocket = null;
-  private DirectoryServiceThread client = null;
+  private ServerSocket fileServerSocket = null;
+  private ServerSocket clientSocket = null;
+  private FileServerThread fileServerThread = null;
+  private ClientThread clientThread = null;
 
   public static void main(String[] argv) {
-    int port = Integer.parseInt(argv[0]);
-    new DirectoryService(port);
+    int fileServerPort = Integer.parseInt(argv[0]);
+    int clientPort = Integer.parseInt(argv[1]);
+    new DirectoryService(fileServerPort, clientPort);
   }
 
-  public DirectoryService(int port) {
+  public DirectoryService(int fileServerPort, int clientPort) {
     System.out.println("Begin Comms");
     try {
-      welcomeSocket = new ServerSocket(port);
+      fileServerSocket = new ServerSocket(fileServerPort);
+      clientSocket = new ServerSocket(clientPort);
     } catch (IOException e) {
       System.out.println(e);
     }
@@ -33,9 +37,17 @@ public class DirectoryService implements Runnable {
   public void run() {
     while (thread != null) {
       try {
-        Socket conSocket = welcomeSocket.accept();
-        client = new DirectoryServiceThread(this, conSocket);
-        client.start();
+        Socket fileSocket = fileServerSocket.accept();
+        fileServerThread = new FileServerThread(this, fileSocket);
+        fileServerThread.start();
+      } catch (IOException e) {
+        System.out.println(e);
+      }
+
+      try {
+        Socket clientSideSocket = clientSocket.accept();
+        clientThread = new ClientThread(this, clientSideSocket);
+        clientThread.start();
       } catch (IOException e) {
         System.out.println(e);
       }

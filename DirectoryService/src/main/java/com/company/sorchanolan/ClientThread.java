@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
-public class DirectoryServiceThread extends Thread implements Runnable {
+public class ClientThread extends Thread implements Runnable {
   private volatile boolean running = true;
   private Socket socket = null;
   private DirectoryService server = null;
@@ -14,7 +14,7 @@ public class DirectoryServiceThread extends Thread implements Runnable {
   private BufferedReader inFromClient = null;
   private DataOutputStream outToClient = null;
 
-  public DirectoryServiceThread(DirectoryService server, Socket socket) {
+  public ClientThread(DirectoryService server, Socket socket) {
     this.server = server;
     this.socket = socket;
     port = socket.getPort();
