@@ -4,3 +4,4 @@ FileServer/target
 ClientProxy/.idea
 ClientProxy/target
 .idea/*
+DirectoryService/.idea
