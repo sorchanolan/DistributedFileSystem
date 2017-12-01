@@ -3,3 +3,4 @@ FileServer/.idea
 FileServer/target
 ClientProxy/.idea
 ClientProxy/target
+.idea/*

@@ -1,31 +1,31 @@
 package com.company.sorchanolan;
 
 public class Request {
-  private String command;
-  private String access;
+  private boolean writeCommand;
+  private boolean writeAccess;
   private String fileName;
   private String body;
 
   public Request() {
-    this.command = "";
-    this.access = "";
+    this.writeCommand = false;
+    this.writeAccess = false;
     this.fileName = "";
     this.body = "";
   }
 
-  public Request(String command, String access, String fileName, String body) {
-    this.command = command;
-    this.access = access;
+  public Request(boolean command, boolean access, String fileName, String body) {
+    this.writeCommand = command;
+    this.writeAccess = access;
     this.fileName = fileName;
     this.body = body;
   }
 
-  public String getCommand() {
-    return command;
+  public boolean getWriteCommand() {
+    return writeCommand;
   }
 
-  public String getAccess() {
-    return access;
+  public boolean getWriteAccess() {
+    return writeAccess;
   }
 
   public String getFileName() {
@@ -36,12 +36,12 @@ public class Request {
     return body;
   }
 
-  public void setCommand(String command) {
-    this.command = command;
+  public void setWriteCommand(boolean writeCommand) {
+    this.writeCommand = writeCommand;
   }
 
-  public void setAccess(String access) {
-    this.access = access;
+  public void setWriteAccess(boolean writeAccess) {
+    this.writeAccess = writeAccess;
   }
 
   public void setFileName(String fileName) {
@@ -50,5 +50,10 @@ public class Request {
 
   public void setBody(String body) {
     this.body = body;
+  }
+
+  public Request withAccess(boolean access) {
+    this.setWriteAccess(access);
+    return this;
   }
 }

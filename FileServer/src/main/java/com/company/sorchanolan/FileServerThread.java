@@ -9,8 +9,6 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 
 public class FileServerThread extends Thread implements Runnable {
   private volatile boolean running = true;
@@ -35,9 +33,8 @@ public class FileServerThread extends Thread implements Runnable {
     while (running) {
       try {
         String clientMessage = inFromClient.readLine();
-        System.out.println(clientMessage);
         processRequest(clientMessage);
-      } catch (IOException e) {
+      } catch (Exception e) {
         System.out.println(e);
       }
     }
@@ -52,7 +49,7 @@ public class FileServerThread extends Thread implements Runnable {
     }
   }
 
-  private void processRequest(String clientMessage) {
+  private void processRequest(String clientMessage) throws Exception {
     Request request = new Request();
     try {
       request = mapper.readValue(clientMessage, Request.class);
@@ -60,26 +57,27 @@ public class FileServerThread extends Thread implements Runnable {
       System.out.println("Cannot map input to request object" + e);
     }
 
-    if (request.getCommand().equals("read")) {
-      processReadRequest(request);
-    } else if (request.getCommand().equals("write")) {
+    if (request.getWriteCommand()) {
       processWriteRequest(request);
+    } else {
+      processReadRequest(request);
     }
   }
 
-  private void processReadRequest(Request request) {
-    List<String> listOfLines = new ArrayList<>();
+  private void processReadRequest(Request request) throws Exception {
+    String body = "";
     if (Files.exists(Paths.get(request.getFileName()))) {
       try {
-        listOfLines = Files.readAllLines(Paths.get(request.getFileName()));
+        body = String.join("\n", Files.readAllLines(Paths.get(request.getFileName())));
       } catch (IOException e) {
         e.printStackTrace();
       }
     } else {
-      Paths.get(request.getFileName());
+      Path path = Paths.get(request.getFileName());
+      Files.createFile(path);
     }
 
-    request.setBody(listOfLines.toString());
+    request.setBody(body);
     try {
       try {
         System.out.println(mapper.writeValueAsString(request));
@@ -92,7 +90,12 @@ public class FileServerThread extends Thread implements Runnable {
     }
   }
 
-  private void processWriteRequest(Request request) {
+  private void processWriteRequest(Request request) throws Exception {
+    File file = new File(request.getFileName());
+    FileWriter fileWriter = new FileWriter(file, false);
+    fileWriter.write(request.getBody());
+    fileWriter.close();
 
+    outToClient.writeBytes(mapper.writeValueAsString(request.withAccess(false)) + "\n");
   }
 }
