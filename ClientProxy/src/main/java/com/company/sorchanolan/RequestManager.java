@@ -44,8 +44,8 @@ public class RequestManager {
     return readFile(fileName);
   }
 
-  public String[] openFiles() throws Exception {
-    outToDirectory.writeBytes("openfiles\n");
+  public String[] listFiles() throws Exception {
+    outToDirectory.writeBytes("listfiles\n");
     String[] files = mapper.readValue(inFromDirectory.readLine(), String[].class);
     return files;
   }

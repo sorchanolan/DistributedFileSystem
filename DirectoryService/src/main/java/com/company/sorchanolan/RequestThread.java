@@ -61,7 +61,7 @@ public class RequestThread extends Thread implements Runnable {
       return;
     }
 
-    if (message.startsWith("openfiles")) {
+    if (message.startsWith("listfiles")) {
       List<String> fileNames = dao.getAllFileNames();
       outToClient.writeBytes(mapper.writeValueAsString(fileNames) + "\n");
       return;

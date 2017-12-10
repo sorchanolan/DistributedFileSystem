@@ -59,7 +59,7 @@ public class Editor implements ActionListener {
 
   private void addOpenMenu() {
     try {
-      String[] files = requestManager.openFiles();
+      String[] files = requestManager.listFiles();
       open.removeAll();
       for (String file : files) {
         JMenuItem menuItem = new JMenuItem(file);
