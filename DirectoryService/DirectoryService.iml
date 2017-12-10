@@ -22,8 +22,8 @@
     <orderEntry type="library" name="Maven: com.hubspot.rosetta:RosettaJdbi:3.11.2" level="project" />
     <orderEntry type="library" name="Maven: com.hubspot.rosetta:RosettaCore:3.11.2" level="project" />
     <orderEntry type="library" name="Maven: com.hubspot.rosetta:RosettaAnnotations:3.11.2" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.7.4" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.7.4" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.7.4" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.9.2" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.9.2" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.9.0" level="project" />
   </component>
 </module>

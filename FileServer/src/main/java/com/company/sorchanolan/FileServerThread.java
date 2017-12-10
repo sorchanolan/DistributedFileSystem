@@ -33,7 +33,9 @@ public class FileServerThread extends Thread implements Runnable {
     while (running) {
       try {
         String clientMessage = inFromClient.readLine();
-        processRequest(clientMessage);
+        if (clientMessage != null) {
+          processRequest(clientMessage);
+        }
       } catch (Exception e) {
         System.out.println(e);
       }
@@ -66,15 +68,16 @@ public class FileServerThread extends Thread implements Runnable {
 
   private void processReadRequest(Request request) throws Exception {
     String body = "";
-    if (Files.exists(Paths.get(request.getFileName()))) {
+    if (Files.exists(Paths.get("Files/" + request.getFileName()))) {
       try {
-        body = String.join("\n", Files.readAllLines(Paths.get(request.getFileName())));
+        body = String.join("\n", Files.readAllLines(Paths.get("Files/" + request.getFileName())));
       } catch (IOException e) {
         e.printStackTrace();
       }
     } else {
-      Path path = Paths.get(request.getFileName());
+      Path path = Paths.get("Files/" + request.getFileName());
       Files.createFile(path);
+      DirectoryCommunication directoryCommunication = new DirectoryCommunication();
     }
 
     request.setBody(body);
@@ -91,7 +94,7 @@ public class FileServerThread extends Thread implements Runnable {
   }
 
   private void processWriteRequest(Request request) throws Exception {
-    File file = new File(request.getFileName());
+    File file = new File("Files/" + request.getFileName());
     FileWriter fileWriter = new FileWriter(file, false);
     fileWriter.write(request.getBody());
     fileWriter.close();

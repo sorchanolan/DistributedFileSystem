@@ -38,7 +38,7 @@ public class RequestManager {
   }
 
   public Request newFile(String fileName) throws Exception {
-    outToDirectory.writeBytes("newfile:" + fileName + "\n");
+    outToDirectory.writeBytes("newfile\n");
     FileServer server = mapper.readValue(inFromDirectory.readLine(), FileServer.class);
     openFileServerComms(server.getIpAddress(), server.getPort());
     return readFile(fileName);

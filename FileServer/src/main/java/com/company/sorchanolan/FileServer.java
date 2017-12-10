@@ -5,17 +5,25 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class FileServer implements Runnable {
+  public static String directoryIpAddress;
+  public static int directoryPort;
+  public static int port;
   private Thread thread = null;
   private ServerSocket welcomeSocket = null;
   private FileServerThread client = null;
+  private DirectoryCommunication directoryCommunication = null;
 
-  public static void main(String[] argv) {
-    int port = Integer.parseInt(argv[0]);
-    new FileServer(port);
+  public static void main(String[] argv) throws Exception {
+    port = Integer.parseInt(argv[0]);
+    directoryIpAddress = argv[1];
+    directoryPort = Integer.parseInt(argv[2]);
+    new FileServer();
   }
 
-  public FileServer(int port) {
+  public FileServer() throws Exception {
     System.out.println("Begin Comms");
+    directoryCommunication = new DirectoryCommunication();
+
     try {
       welcomeSocket = new ServerSocket(port);
     } catch (IOException e) {

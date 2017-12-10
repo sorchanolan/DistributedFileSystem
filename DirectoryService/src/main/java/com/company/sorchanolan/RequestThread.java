@@ -7,8 +7,10 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.List;
+import java.util.Optional;
 
-public class ClientThread extends Thread implements Runnable {
+public class RequestThread extends Thread implements Runnable {
   private volatile boolean running = true;
   private Socket clientSocket = null;
   private DirectoryService server = null;
@@ -18,7 +20,7 @@ public class ClientThread extends Thread implements Runnable {
   private DirectoryDao dao = null;
   private ObjectMapper mapper = null;
 
-  public ClientThread(DirectoryService server, Socket socket, DirectoryDao dao) {
+  public RequestThread(DirectoryService server, Socket socket, DirectoryDao dao) {
     this.server = server;
     this.clientSocket = socket;
     this.dao = dao;
@@ -28,19 +30,21 @@ public class ClientThread extends Thread implements Runnable {
 
   public void run() {
     System.out.println("Server Thread " + port + " running.");
-    openClientComms();
+    openComms();
 
     while (running = true) {
       try {
-        String clientMessage = inFromClient.readLine();
-        processRequest(clientMessage);
+        String message = inFromClient.readLine();
+        if (message != null) {
+          processRequest(message);
+        }
       } catch (Exception e) {
         System.out.println(e);
       }
     }
   }
 
-  private void openClientComms() {
+  private void openComms() {
     try {
       inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
       outToClient = new DataOutputStream(clientSocket.getOutputStream());
@@ -49,7 +53,7 @@ public class ClientThread extends Thread implements Runnable {
     }
   }
 
-  private void processRequest(String message) {
+  private void processRequest(String message) throws Exception {
     System.out.println(message);
     if (message.startsWith("newfile")) {
       FileServer server = dao.getRandomFileServer();
@@ -57,6 +61,30 @@ public class ClientThread extends Thread implements Runnable {
         outToClient.writeBytes(mapper.writeValueAsString(server) + "\n");
       } catch (IOException e) {
         e.printStackTrace();
+      }
+      return;
+    }
+
+    if (message.startsWith("fileserver")) {
+      message = message.replace("fileserver", "");
+      FileServer fileServer = mapper.readValue(message, FileServer.class);
+      List<String> fileNames = dao.getAllFileNames();
+
+      List<FileServer> maybeFileServer = dao.getFileServer(fileServer.getIpAddress(), fileServer.getPort());
+      if (maybeFileServer.isEmpty()) {
+        fileServer.setId(server.createID());
+        dao.addNewServer(fileServer);
+      } else {
+        fileServer.setId(maybeFileServer.get(0).getId());
+      }
+
+      for (String fileName : fileServer.getFiles()) {
+        if (!fileNames.contains(fileName)) {
+          int fileId = server.createID();
+          dao.addNewFile(fileId, fileName);
+          dao.addNewMapping(fileServer.getId(), fileId);
+          fileNames.add(fileName);
+        }
       }
     }
   }
