@@ -31,13 +31,6 @@ public class RequestManager {
     }
   }
 
-  public Request newFile(String fileName) throws Exception {
-    Request request = new Request(false, false, fileName, "");
-    String requestString = mapper.writeValueAsString(request);
-    outToServer.writeBytes(requestString + "\n");
-    return mapper.readValue(inFromServer.readLine(), Request.class);
-  }
-
   public Request readFile(String fileName) throws Exception {
     Request request = new Request(false, false, fileName, "");
     String requestString = mapper.writeValueAsString(request);

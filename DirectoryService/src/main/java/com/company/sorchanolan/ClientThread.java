@@ -24,7 +24,7 @@ public class ClientThread extends Thread implements Runnable {
     System.out.println("Server Thread " + port + " running.");
     openComms();
 
-    while (running) {
+    while (running = true) {
       try {
         String clientMessage = inFromClient.readLine();
         processRequest(clientMessage);
