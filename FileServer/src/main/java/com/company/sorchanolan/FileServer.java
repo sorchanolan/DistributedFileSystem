@@ -11,7 +11,6 @@ public class FileServer implements Runnable {
   private Thread thread = null;
   private ServerSocket welcomeSocket = null;
   private FileServerThread client = null;
-  private DirectoryCommunication directoryCommunication = null;
 
   public static void main(String[] argv) throws Exception {
     port = Integer.parseInt(argv[0]);
@@ -22,13 +21,8 @@ public class FileServer implements Runnable {
 
   public FileServer() throws Exception {
     System.out.println("Begin Comms");
-    directoryCommunication = new DirectoryCommunication();
-
-    try {
-      welcomeSocket = new ServerSocket(port);
-    } catch (IOException e) {
-      System.out.println(e);
-    }
+    new UpdateDirectory();
+    welcomeSocket = new ServerSocket(port);
 
     if (thread == null)
     {

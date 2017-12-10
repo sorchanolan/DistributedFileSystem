@@ -56,11 +56,21 @@ public class RequestThread extends Thread implements Runnable {
   private void processRequest(String message) throws Exception {
     System.out.println(message);
     if (message.startsWith("newfile")) {
-      FileServer server = dao.getRandomFileServer();
-      try {
-        outToClient.writeBytes(mapper.writeValueAsString(server) + "\n");
-      } catch (IOException e) {
-        e.printStackTrace();
+      FileServer fileServer = dao.getRandomFileServer();
+      outToClient.writeBytes(mapper.writeValueAsString(fileServer) + "\n");
+      return;
+    }
+
+    if (message.startsWith("openfiles")) {
+      List<String> fileNames = dao.getAllFileNames();
+      outToClient.writeBytes(mapper.writeValueAsString(fileNames) + "\n");
+      return;
+    }
+
+    if (message.startsWith("openfile")) {
+      List<FileServer> servers = dao.getServersHoldingFile(message.replace("openfile", ""));
+      if (!servers.isEmpty()) {
+        outToClient.writeBytes(mapper.writeValueAsString(servers.get(0)) + "\n");
       }
       return;
     }

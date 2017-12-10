@@ -11,7 +11,8 @@ public class Editor implements ActionListener {
   private JTextArea editor = null;
   private JPanel panel = null;
   private JMenuItem newFile = new JMenuItem("New");
-  private JMenuItem open = new JMenuItem("Open");
+  private JMenu open = new JMenu("Open");
+  private JMenuItem fileItem = null;
   private JMenuItem edit = new JMenuItem("Edit");
   private JMenuItem save = new JMenuItem("Finish Editing");
   private String fileName = "";
@@ -35,15 +36,15 @@ public class Editor implements ActionListener {
   }
 
   public void display(Request request) {
-
     frame = new JFrame(request.getFileName());
     JMenuBar menuBar = new JMenuBar();
-    menuBar.add(newFile);
     menuBar.add(open);
+    menuBar.add(newFile);
     if (!request.getFileName().isEmpty()) {
       menuBar.add(edit);
       menuBar.add(save);
     }
+    addOpenMenu();
     newFile.addActionListener(this);
     open.addActionListener(this);
     edit.addActionListener(this);
@@ -56,6 +57,33 @@ public class Editor implements ActionListener {
     frame.setVisible(true);
   }
 
+  private void addOpenMenu() {
+    try {
+      String[] files = requestManager.openFiles();
+      open.removeAll();
+      for (String file : files) {
+        JMenuItem menuItem = new JMenuItem(file);
+        menuItem.addActionListener(new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent ae) {
+            fileName = ae.getActionCommand();
+            Request request = new Request();
+            try {
+              request = requestManager.openFile(correctFileName(fileName));
+            } catch (Exception e) {
+              e.printStackTrace();
+            }
+            frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+            display(request);
+          }
+        });
+        open.add(menuItem);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
   @Override
   public void actionPerformed(ActionEvent ae) {
     if (ae.getSource() == newFile) {
@@ -63,21 +91,7 @@ public class Editor implements ActionListener {
       if (fileName != null) {
         Request request = new Request();
         try {
-          request = requestManager.newFile(fileName + ".txt");
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-        frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-        display(request);
-      }
-    }
-
-    if (ae.getSource() == open) {
-      fileName = JOptionPane.showInputDialog(frame, "Please enter file name to open:");
-      if (fileName != null) {
-        Request request = new Request();
-        try {
-          request = requestManager.readFile(fileName + ".txt");
+          request = requestManager.newFile(correctFileName(fileName));
         } catch (Exception e) {
           e.printStackTrace();
         }
@@ -89,7 +103,7 @@ public class Editor implements ActionListener {
     if (ae.getSource() == edit) {
       Request request = new Request();
       try {
-        request = requestManager.editFile(fileName + ".txt");
+        request = requestManager.editFile(correctFileName(fileName));
       } catch (Exception e) {
         e.printStackTrace();
       }
@@ -100,12 +114,16 @@ public class Editor implements ActionListener {
     if (ae.getSource() == save) {
       Request request = new Request();
       try {
-        request = requestManager.saveFile(fileName + ".txt", editor.getText());
+        request = requestManager.saveFile(correctFileName(fileName), editor.getText());
       } catch (Exception e) {
         e.printStackTrace();
       }
       frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
       display(request);
     }
+  }
+
+  private String correctFileName(String name) {
+    return name.contains(".txt") ? name : name + ".txt";
   }
 }

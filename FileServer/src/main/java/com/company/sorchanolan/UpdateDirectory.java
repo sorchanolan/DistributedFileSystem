@@ -4,10 +4,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 
-import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,12 +15,12 @@ import static com.company.sorchanolan.FileServer.directoryIpAddress;
 import static com.company.sorchanolan.FileServer.directoryPort;
 import static com.company.sorchanolan.FileServer.port;
 
-public class DirectoryCommunication {
+public class UpdateDirectory {
   private Socket directorySocket = null;
   private ObjectMapper mapper = new ObjectMapper();
   private DataOutputStream outToDirectory = null;
 
-  public DirectoryCommunication() throws Exception {
+  public UpdateDirectory() throws Exception {
     openDirectoryComms();
     mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     sendDataToDirectoryService();

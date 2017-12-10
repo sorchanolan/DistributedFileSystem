@@ -44,6 +44,19 @@ public class RequestManager {
     return readFile(fileName);
   }
 
+  public String[] openFiles() throws Exception {
+    outToDirectory.writeBytes("openfiles\n");
+    String[] files = mapper.readValue(inFromDirectory.readLine(), String[].class);
+    return files;
+  }
+
+  public Request openFile(String fileName) throws Exception {
+    outToDirectory.writeBytes("openfile" + fileName + "\n");
+    FileServer server = mapper.readValue(inFromDirectory.readLine(), FileServer.class);
+    openFileServerComms(server.getIpAddress(), server.getPort());
+    return readFile(fileName);
+  }
+
   public Request readFile(String fileName) throws Exception {
     Request request = new Request(false, false, fileName, "");
     String requestString = mapper.writeValueAsString(request);
