@@ -1,6 +1,5 @@
 package com.company.sorchanolan;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -33,7 +32,9 @@ public class FileServerThread extends Thread implements Runnable {
     while (running) {
       try {
         String clientMessage = inFromClient.readLine();
-        processRequest(clientMessage);
+        if (clientMessage != null) {
+          processRequest(clientMessage);
+        }
       } catch (Exception e) {
         System.out.println(e);
       }
@@ -50,13 +51,7 @@ public class FileServerThread extends Thread implements Runnable {
   }
 
   private void processRequest(String clientMessage) throws Exception {
-    Request request = new Request();
-    try {
-      request = mapper.readValue(clientMessage, Request.class);
-    } catch (IOException e) {
-      System.out.println("Cannot map input to request object" + e);
-    }
-
+    Request request = mapper.readValue(clientMessage, Request.class);
     if (request.getWriteCommand()) {
       processWriteRequest(request);
     } else {
@@ -66,32 +61,21 @@ public class FileServerThread extends Thread implements Runnable {
 
   private void processReadRequest(Request request) throws Exception {
     String body = "";
-    if (Files.exists(Paths.get(request.getFileName()))) {
-      try {
-        body = String.join("\n", Files.readAllLines(Paths.get(request.getFileName())));
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+    if (Files.exists(Paths.get("Files/" + request.getFileName()))) {
+      body = String.join("\n", Files.readAllLines(Paths.get("Files/" + request.getFileName())));
     } else {
-      Path path = Paths.get(request.getFileName());
+      Path path = Paths.get("Files/" + request.getFileName());
       Files.createFile(path);
+      new UpdateDirectory();
     }
 
     request.setBody(body);
-    try {
-      try {
-        System.out.println(mapper.writeValueAsString(request));
-        outToClient.writeBytes(mapper.writeValueAsString(request) + "\n");
-      } catch (JsonProcessingException jpe) {
-        System.out.println("Cannot write json request as string: " + jpe);
-      }
-    } catch (IOException e) {
-      System.out.println(e);
-    }
+    System.out.println(mapper.writeValueAsString(request));
+    outToClient.writeBytes(mapper.writeValueAsString(request) + "\n");
   }
 
   private void processWriteRequest(Request request) throws Exception {
-    File file = new File(request.getFileName());
+    File file = new File("Files/" + request.getFileName());
     FileWriter fileWriter = new FileWriter(file, false);
     fileWriter.write(request.getBody());
     fileWriter.close();
