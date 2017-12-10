@@ -65,13 +65,18 @@ public class RequestManager {
   }
 
   public Request editFile(String fileName) throws Exception {
-    Request request = new Request(false, true, fileName, "");
-    String requestString = mapper.writeValueAsString(request);
-    outToFileServer.writeBytes(requestString + "\n");
-    return mapper.readValue(inFromFileServer.readLine(), Request.class);
+    outToDirectory.writeBytes("lock" + fileName + "\n");
+    if (inFromDirectory.readLine().equals("true")) {
+      Request request = new Request(false, true, fileName, "");
+      String requestString = mapper.writeValueAsString(request);
+      outToFileServer.writeBytes(requestString + "\n");
+      return mapper.readValue(inFromFileServer.readLine(), Request.class);
+    }
+    return new Request();
   }
 
   public Request saveFile(String fileName, String body) throws Exception {
+    outToDirectory.writeBytes("unlock" + fileName + "\n");
     Request request = new Request(true, false, fileName, body);
     String requestString = mapper.writeValueAsString(request);
     outToFileServer.writeBytes(requestString + "\n");
