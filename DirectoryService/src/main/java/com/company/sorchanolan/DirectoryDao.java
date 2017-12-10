@@ -6,10 +6,8 @@ import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapperFactory;
-import org.skife.jdbi.v2.sqlobject.customizers.SingleValueResult;
 
 import java.util.List;
-import java.util.Optional;
 
 @RegisterMapperFactory(RosettaMapperFactory.class)
 public interface DirectoryDao {
@@ -36,4 +34,13 @@ public interface DirectoryDao {
 
   @SqlQuery("SELECT MAX(id) FROM ((SELECT id FROM FileServer UNION ALL SELECT id FROM File) AS id)")
   int getCurrentIdCounter();
+
+  @SqlUpdate("INSERT INTO FileLock VALUES(:id, :file_id, :status, :valid_until, :user_id")
+  void addNewFileLock(@BindWithRosetta FileLock fileLock);
+
+  @SqlUpdate("UPDATE FileLock SET status = :status WHERE id = :id")
+  void updateLockStatus(@Bind("status") boolean status, @Bind("id") int id);
+
+  @SqlQuery("SELECT EXISTS (SELECT * FROM FileLock WHERE file_id = :file_id AND status = true AND valid_until > :current_time)")
+  boolean lockExists(@Bind("file_id") int fileId, @Bind("current_time") long currentTime);
 }
