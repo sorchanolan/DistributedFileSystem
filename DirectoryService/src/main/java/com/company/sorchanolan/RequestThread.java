@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.List;
-import java.util.Optional;
 
 public class RequestThread extends Thread implements Runnable {
   private volatile boolean running = true;
@@ -19,6 +18,8 @@ public class RequestThread extends Thread implements Runnable {
   private DataOutputStream outToClient = null;
   private DirectoryDao dao = null;
   private ObjectMapper mapper = null;
+  private LockingService lockingService = null;
+  private int userId;
 
   public RequestThread(DirectoryService server, Socket socket, DirectoryDao dao) {
     this.server = server;
@@ -26,6 +27,8 @@ public class RequestThread extends Thread implements Runnable {
     this.dao = dao;
     port = socket.getPort();
     mapper = new ObjectMapper();
+    lockingService = new LockingService();
+    userId = server.createID();
   }
 
   public void run() {
@@ -96,6 +99,23 @@ public class RequestThread extends Thread implements Runnable {
           fileNames.add(fileName);
         }
       }
+      return;
+    }
+
+    if (message.startsWith("lock")) {
+      String fileName = message.replace("lock", "");
+      if (!lockingService.checkIfLocked(fileName)) {
+        lockingService.setLock(server.createID(), fileName, userId);
+        outToClient.writeBytes(true + "\n");
+      } else {
+        outToClient.writeBytes(false + "\n");
+      }
+      return;
+    }
+
+    if (message.startsWith("unlock")) {
+      String fileName = message.replace("lock", "");
+      lockingService.unlock(fileName, userId);
     }
   }
 }
