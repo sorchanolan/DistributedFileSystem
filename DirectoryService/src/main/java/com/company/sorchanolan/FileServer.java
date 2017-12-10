@@ -1,8 +1,12 @@
 package com.company.sorchanolan;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.hubspot.rosetta.annotations.RosettaNaming;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@RosettaNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class FileServer {
   private int id;
   private String ipAddress;

@@ -60,26 +60,30 @@ public class Editor implements ActionListener {
   public void actionPerformed(ActionEvent ae) {
     if (ae.getSource() == newFile) {
       fileName = JOptionPane.showInputDialog(frame, "Please enter file name:");
-      Request request = new Request();
-      try {
-        request = requestManager.readFile(fileName + ".txt");
-      } catch (Exception e) {
-        e.printStackTrace();
+      if (fileName != null) {
+        Request request = new Request();
+        try {
+          request = requestManager.newFile(fileName + ".txt");
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+        frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+        display(request);
       }
-      frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-      display(request);
     }
 
     if (ae.getSource() == open) {
       fileName = JOptionPane.showInputDialog(frame, "Please enter file name to open:");
-      Request request = new Request();
-      try {
-        request = requestManager.readFile(fileName + ".txt");
-      } catch (Exception e) {
-        e.printStackTrace();
+      if (fileName != null) {
+        Request request = new Request();
+        try {
+          request = requestManager.readFile(fileName + ".txt");
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+        frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+        display(request);
       }
-      frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-      display(request);
     }
 
     if (ae.getSource() == edit) {
