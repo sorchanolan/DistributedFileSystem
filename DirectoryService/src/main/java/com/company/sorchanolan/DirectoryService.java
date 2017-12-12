@@ -24,6 +24,7 @@ public class DirectoryService implements Runnable {
         "sorcha", "Nolan123");
     dao = dbi.onDemand(DirectoryDao.class);
     idCounter = dao.getCurrentIdCounter() + 1;
+    dao.setAllFileServersToNotRunning();
 
     try {
       socket = new ServerSocket(port);

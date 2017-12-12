@@ -15,17 +15,17 @@ public interface DirectoryDao {
   @SqlUpdate("INSERT INTO File VALUES(:id, :file_name)")
   void addNewFile(@Bind("id") int id, @Bind("file_name") String fileName);
 
-  @SqlUpdate("INSERT INTO FileServer VALUES(:id, :port, :ip_address)")
+  @SqlUpdate("INSERT INTO FileServer VALUES(:id, :port, :ip_address, :running)")
   void addNewServer(@BindWithRosetta FileServer fileServer);
 
   @SqlUpdate("INSERT INTO ServerFileMapping VALUES(:file_server_id, :file_id)")
   void addNewMapping(@Bind("file_server_id") int fileServerId, @Bind("file_id") int fileId);
 
-  @SqlQuery("SELECT * FROM FileServer WHERE id = (SELECT file_server_id FROM ServerFileMapping WHERE file_id = (SELECT id FROM File WHERE file_name = :file_name))")
+  @SqlQuery("SELECT file_name FROM File f JOIN ServerFileMapping m ON m.file_id = f.id JOIN FileServer fs ON m.file_server_id = fs.id WHERE f.file_name = :file_name AND fs.running = true")
   List<FileServer> getServersHoldingFile(@Bind("file_name") String fileName);
 
-  @SqlQuery("SELECT file_name FROM File")
-  List<String> getAllFileNames();
+  @SqlQuery("SELECT file_name FROM File f JOIN ServerFileMapping m ON m.file_id = f.id JOIN FileServer fs ON m.file_server_id = fs.id WHERE fs.running = true")
+  List<String> getAllFileNamesFromRunningServers();
 
   @SqlQuery("SELECT * FROM FileServer ORDER BY RAND() LIMIT 1")
   FileServer getRandomFileServer();
@@ -47,4 +47,10 @@ public interface DirectoryDao {
 
   @SqlQuery("SELECT EXISTS (SELECT * FROM FileLock WHERE file_id = :file_id AND status = true AND valid_until > :current_time)")
   boolean lockExists(@Bind("file_id") int fileId, @Bind("current_time") long currentTime);
+
+  @SqlUpdate("UPDATE FileServer SET running = false")
+  void setAllFileServersToNotRunning();
+
+  @SqlUpdate("UPDATE FileServer SET running = true WHERE id = :id")
+  void setFileServerToRunning(@Bind("id") int id);
 }

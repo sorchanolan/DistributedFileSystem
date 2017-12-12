@@ -37,6 +37,7 @@ public class UpdateDirectory {
     if (folder.listFiles() != null) {
       files = Lists.newArrayList(folder.listFiles()).stream()
           .map(File::getName)
+          .filter(name -> !name.startsWith("."))
           .collect(Collectors.toList());
     }
 

@@ -65,7 +65,7 @@ public class RequestThread extends Thread implements Runnable {
     }
 
     if (message.startsWith("listfiles")) {
-      List<String> fileNames = dao.getAllFileNames();
+      List<String> fileNames = dao.getAllFileNamesFromRunningServers();
       outToClient.writeBytes(mapper.writeValueAsString(fileNames) + "\n");
       return;
     }
@@ -81,14 +81,16 @@ public class RequestThread extends Thread implements Runnable {
     if (message.startsWith("fileserver")) {
       message = message.replace("fileserver", "");
       FileServer fileServer = mapper.readValue(message, FileServer.class);
-      List<String> fileNames = dao.getAllFileNames();
+      List<String> fileNames = dao.getAllFileNamesFromRunningServers();
 
       List<FileServer> maybeFileServer = dao.getFileServer(fileServer.getIpAddress(), fileServer.getPort());
       if (maybeFileServer.isEmpty()) {
         fileServer.setId(server.createID());
+        fileServer.setRunning(true);
         dao.addNewServer(fileServer);
       } else {
         fileServer.setId(maybeFileServer.get(0).getId());
+        dao.setFileServerToRunning(maybeFileServer.get(0).getId());
       }
 
       for (String fileName : fileServer.getFiles()) {
