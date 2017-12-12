@@ -72,7 +72,7 @@ public class RequestManager {
       outToFileServer.writeBytes(requestString + "\n");
       return mapper.readValue(inFromFileServer.readLine(), Request.class);
     }
-    return new Request();
+    return new Request(false, false, fileName, "");
   }
 
   public Request saveFile(String fileName, String body) throws Exception {

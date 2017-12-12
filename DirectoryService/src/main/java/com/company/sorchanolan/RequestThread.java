@@ -106,9 +106,9 @@ public class RequestThread extends Thread implements Runnable {
       String fileName = message.replace("lock", "");
       if (!lockingService.checkIfLocked(fileName)) {
         lockingService.setLock(server.createID(), fileName, userId);
-        outToClient.writeBytes(true + "\n");
+        outToClient.writeBytes("true\n");
       } else {
-        outToClient.writeBytes(false + "\n");
+        outToClient.writeBytes("false\n");
       }
       return;
     }

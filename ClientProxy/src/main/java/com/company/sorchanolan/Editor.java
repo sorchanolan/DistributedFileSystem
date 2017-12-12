@@ -22,6 +22,11 @@ public class Editor implements ActionListener {
   public Editor() throws Exception {
     requestManager = new RequestManager();
     display(request);
+    newFile.addActionListener(this);
+    open.addActionListener(this);
+    edit.addActionListener(this);
+    save.addActionListener(this);
+    addOpenMenu();
   }
 
   private JPanel createPanel(Request request) {
@@ -44,11 +49,6 @@ public class Editor implements ActionListener {
       menuBar.add(edit);
       menuBar.add(save);
     }
-    addOpenMenu();
-    newFile.addActionListener(this);
-    open.addActionListener(this);
-    edit.addActionListener(this);
-    save.addActionListener(this);
     frame.setJMenuBar(menuBar);
     //frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setContentPane(createPanel(request));
@@ -87,7 +87,9 @@ public class Editor implements ActionListener {
   @Override
   public void actionPerformed(ActionEvent ae) {
     if (ae.getSource() == newFile) {
+      fileName = null;
       fileName = JOptionPane.showInputDialog(frame, "Please enter file name:");
+      frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
       if (fileName != null) {
         Request request = new Request();
         try {
@@ -95,7 +97,6 @@ public class Editor implements ActionListener {
         } catch (Exception e) {
           e.printStackTrace();
         }
-        frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
         display(request);
       }
     }
@@ -107,8 +108,12 @@ public class Editor implements ActionListener {
       } catch (Exception e) {
         e.printStackTrace();
       }
-      frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-      display(request);
+      if (request.getWriteAccess()) {
+        frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+        display(request);
+      } else {
+        JOptionPane.showMessageDialog(frame, "Sorry, this file is not currently accessible for editing. You will be notified when editing is possible.");
+      }
     }
 
     if (ae.getSource() == save) {

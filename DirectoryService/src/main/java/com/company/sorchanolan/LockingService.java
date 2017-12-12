@@ -4,6 +4,7 @@ import org.skife.jdbi.v2.DBI;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 
 public class LockingService {
@@ -16,22 +17,25 @@ public class LockingService {
   }
 
   public boolean checkIfLocked(String fileName) {
-    Optional<Integer> fileId = dao.getFileId(fileName);
-    return !fileId.isPresent() || dao.lockExists(fileId.get(), Instant.now().toEpochMilli());
+    List<Integer> fileId = dao.getFileId(fileName);
+    if (!fileId.isEmpty()) {
+      return dao.lockExists(fileId.get(0), Instant.now().toEpochMilli());
+    }
+    return true;
   }
 
   public void setLock(int id, String fileName, int userId) {
-    Optional<Integer> fileId = dao.getFileId(fileName);
-    if (fileId.isPresent()) {
-      FileLock fileLock = new FileLock(id, fileId.get(), true, Instant.now().plus(10, ChronoUnit.MINUTES).toEpochMilli(), userId);
+    List<Integer> fileId = dao.getFileId(fileName);
+    if (!fileId.isEmpty()) {
+      FileLock fileLock = new FileLock(id, fileId.get(0), true, Instant.now().plus(10, ChronoUnit.MINUTES).toEpochMilli(), userId);
       dao.addNewFileLock(fileLock);
     }
   }
 
   public void unlock(String fileName, int userId) {
-    Optional<Integer> fileId = dao.getFileId(fileName);
-    if (fileId.isPresent()) {
-      dao.updateLockStatus(false, fileId.get(), userId);
+    List<Integer> fileId = dao.getFileId(fileName);
+    if (!fileId.isEmpty()) {
+      dao.updateLockStatus(false, fileId.get(0), userId);
     }
   }
 }

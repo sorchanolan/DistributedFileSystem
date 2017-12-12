@@ -33,13 +33,13 @@ public interface DirectoryDao {
   @SqlQuery("SELECT * FROM FileServer WHERE ip_address = :ip_address AND port = :port LIMIT 1")
   List<FileServer> getFileServer(@Bind("ip_address") String ipAddress, @Bind("port") int port);
 
-  @SqlQuery("SELECT id FROM File WHERE file_name = :file_name LIMIT 1")
-  Optional<Integer> getFileId(@Bind("file_name") String fileName);
+  @SqlQuery("SELECT id FROM File WHERE file_name = :file_name")
+  List<Integer> getFileId(@Bind("file_name") String fileName);
 
   @SqlQuery("SELECT MAX(id) FROM ((SELECT id FROM FileServer UNION ALL SELECT id FROM File) AS id)")
   int getCurrentIdCounter();
 
-  @SqlUpdate("INSERT INTO FileLock VALUES(:id, :file_id, :status, :valid_until, :user_id")
+  @SqlUpdate("INSERT INTO FileLock VALUES(:id, :file_id, :status, :valid_until, :user_id)")
   void addNewFileLock(@BindWithRosetta FileLock fileLock);
 
   @SqlUpdate("UPDATE FileLock SET status = :status WHERE file_id = :file_id AND user_id = :user_id")
