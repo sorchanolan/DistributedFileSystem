@@ -8,12 +8,14 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
+
+import static com.company.sorchanolan.FileServer.port;
 
 public class FileServerThread extends Thread implements Runnable {
   private volatile boolean running = true;
   private Socket socket = null;
   private FileServer server = null;
-  private int port = -1;
   private BufferedReader inFromClient = null;
   private DataOutputStream outToClient = null;
   private ObjectMapper mapper = new ObjectMapper();
@@ -21,7 +23,6 @@ public class FileServerThread extends Thread implements Runnable {
   public FileServerThread(FileServer server, Socket socket) {
     this.server = server;
     this.socket = socket;
-    port = socket.getPort();
     mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
   }
 
@@ -61,12 +62,25 @@ public class FileServerThread extends Thread implements Runnable {
 
   private void processReadRequest(Request request) throws Exception {
     String body = "";
-    if (Files.exists(Paths.get("Files/" + request.getFileName()))) {
-      body = String.join("\n", Files.readAllLines(Paths.get("Files/" + request.getFileName())));
+    String path = "../Files_"  + port + "/" + request.getFileName();
+    if (Files.exists(Paths.get(path))) {
+      body = String.join("\n", Files.readAllLines(Paths.get(path)));
     } else {
-      Path path = Paths.get("Files/" + request.getFileName());
-      Files.createFile(path);
-      new UpdateDirectory();
+      Path directoryPath = Paths.get("../Files_"  + port + "/");
+      if (!Files.exists(directoryPath)) {
+        Files.createDirectory(directoryPath);
+      }
+      Path filePath = Paths.get(path);
+      Files.createFile(filePath);
+      new UpdateDirectory(server);
+    }
+
+    Optional<Integer> fileId = server.files.stream()
+        .filter(fileMap -> fileMap.getFileName().equals(request.getFileName()))
+        .map(FileMap::getId)
+        .findAny();
+    if (fileId.isPresent()) {
+      request.setFileId(fileId.get());
     }
 
     request.setBody(body);

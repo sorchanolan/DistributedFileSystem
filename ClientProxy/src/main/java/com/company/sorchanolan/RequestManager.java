@@ -38,7 +38,7 @@ public class RequestManager {
   }
 
   public Request newFile(String fileName) throws Exception {
-    outToDirectory.writeBytes("newfile\n");
+    outToDirectory.writeBytes("newfile" + fileName + "\n");
     FileServer server = mapper.readValue(inFromDirectory.readLine(), FileServer.class);
     openFileServerComms(server.getIpAddress(), server.getPort());
     return readFile(fileName);
@@ -58,26 +58,26 @@ public class RequestManager {
   }
 
   public Request readFile(String fileName) throws Exception {
-    Request request = new Request(false, false, fileName, "");
+    Request request = new Request(false, false, fileName, "", -1);
     String requestString = mapper.writeValueAsString(request);
     outToFileServer.writeBytes(requestString + "\n");
     return mapper.readValue(inFromFileServer.readLine(), Request.class);
   }
 
-  public Request editFile(String fileName) throws Exception {
-    outToDirectory.writeBytes("lock" + fileName + "\n");
+  public Request editFile(String fileName, int fileId) throws Exception {
+    outToDirectory.writeBytes("lock" + fileId + "\n");
     if (inFromDirectory.readLine().equals("true")) {
-      Request request = new Request(false, true, fileName, "");
+      Request request = new Request(false, true, fileName, "", fileId);
       String requestString = mapper.writeValueAsString(request);
       outToFileServer.writeBytes(requestString + "\n");
       return mapper.readValue(inFromFileServer.readLine(), Request.class);
     }
-    return new Request(false, false, fileName, "");
+    return new Request(false, false, fileName, "", fileId);
   }
 
-  public Request saveFile(String fileName, String body) throws Exception {
-    outToDirectory.writeBytes("unlock" + fileName + "\n");
-    Request request = new Request(true, false, fileName, body);
+  public Request saveFile(String fileName, String body, int fileId) throws Exception {
+    outToDirectory.writeBytes("unlock" + fileId + "\n");
+    Request request = new Request(true, false, fileName, body, fileId);
     String requestString = mapper.writeValueAsString(request);
     outToFileServer.writeBytes(requestString + "\n");
     return mapper.readValue(inFromFileServer.readLine(), Request.class);

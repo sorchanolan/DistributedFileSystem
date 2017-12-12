@@ -1,6 +1,8 @@
 /Users/sorchanolan/IdeaProjects/DistributedFileSystem/DirectoryService/src/main/java/com/company/sorchanolan/LockingService.java
+/Users/sorchanolan/IdeaProjects/DistributedFileSystem/DirectoryService/src/main/java/com/company/sorchanolan/File.java
 /Users/sorchanolan/IdeaProjects/DistributedFileSystem/DirectoryService/src/main/java/com/company/sorchanolan/RequestThread.java
 /Users/sorchanolan/IdeaProjects/DistributedFileSystem/DirectoryService/src/main/java/com/company/sorchanolan/DirectoryDao.java
 /Users/sorchanolan/IdeaProjects/DistributedFileSystem/DirectoryService/src/main/java/com/company/sorchanolan/FileServer.java
 /Users/sorchanolan/IdeaProjects/DistributedFileSystem/DirectoryService/src/main/java/com/company/sorchanolan/FileLock.java
 /Users/sorchanolan/IdeaProjects/DistributedFileSystem/DirectoryService/src/main/java/com/company/sorchanolan/DirectoryService.java
+/Users/sorchanolan/IdeaProjects/DistributedFileSystem/DirectoryService/src/main/java/com/company/sorchanolan/ServerFileMapping.java

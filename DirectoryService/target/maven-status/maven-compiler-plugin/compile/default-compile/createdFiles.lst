@@ -1,6 +1,8 @@
 com/company/sorchanolan/DirectoryDao.class
-com/company/sorchanolan/DirectoryService.class
 com/company/sorchanolan/RequestThread.class
+com/company/sorchanolan/File.class
 com/company/sorchanolan/LockingService.class
+com/company/sorchanolan/DirectoryService.class
 com/company/sorchanolan/FileServer.class
 com/company/sorchanolan/FileLock.class
+com/company/sorchanolan/ServerFileMapping.class

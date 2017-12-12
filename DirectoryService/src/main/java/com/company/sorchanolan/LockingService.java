@@ -2,6 +2,7 @@ package com.company.sorchanolan;
 
 import org.skife.jdbi.v2.DBI;
 
+import java.io.BufferedReader;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -16,26 +17,25 @@ public class LockingService {
     dao = dbi.onDemand(DirectoryDao.class);
   }
 
-  public boolean checkIfLocked(String fileName) {
-    List<Integer> fileId = dao.getFileId(fileName);
-    if (!fileId.isEmpty()) {
-      return dao.lockExists(fileId.get(0), Instant.now().toEpochMilli());
+  public String lock(String message, int id, int userId) {
+    int fileId = Integer.getInteger(message);
+    if (!checkIfLocked(fileId)) {
+      setLock(id, fileId, userId);
+      return "true\n";
     }
-    return true;
+      return "false\n";
   }
 
-  public void setLock(int id, String fileName, int userId) {
-    List<Integer> fileId = dao.getFileId(fileName);
-    if (!fileId.isEmpty()) {
-      FileLock fileLock = new FileLock(id, fileId.get(0), true, Instant.now().plus(10, ChronoUnit.MINUTES).toEpochMilli(), userId);
-      dao.addNewFileLock(fileLock);
-    }
+  public boolean checkIfLocked(int fileId) {
+    return dao.lockExists(fileId, Instant.now().toEpochMilli());
   }
 
-  public void unlock(String fileName, int userId) {
-    List<Integer> fileId = dao.getFileId(fileName);
-    if (!fileId.isEmpty()) {
-      dao.updateLockStatus(false, fileId.get(0), userId);
-    }
+  public void setLock(int id, int fileId, int userId) {
+    FileLock fileLock = new FileLock(id, fileId, true, Instant.now().plus(10, ChronoUnit.MINUTES).toEpochMilli(), userId);
+    dao.addNewFileLock(fileLock);
+  }
+
+  public void unlock(int fileId, int userId) {
+    dao.updateLockStatus(false, fileId, userId);
   }
 }

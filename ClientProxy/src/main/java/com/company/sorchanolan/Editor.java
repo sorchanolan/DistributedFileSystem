@@ -16,6 +16,7 @@ public class Editor implements ActionListener {
   private JMenuItem edit = new JMenuItem("Edit");
   private JMenuItem save = new JMenuItem("Finish Editing");
   private String fileName = "";
+  private int fileId = -1;
   private RequestManager requestManager = null;
   private Request request = new Request();
 
@@ -70,6 +71,7 @@ public class Editor implements ActionListener {
             Request request = new Request();
             try {
               request = requestManager.openFile(correctFileName(fileName));
+              fileId = request.getFileId();
             } catch (Exception e) {
               e.printStackTrace();
             }
@@ -94,6 +96,7 @@ public class Editor implements ActionListener {
         Request request = new Request();
         try {
           request = requestManager.newFile(correctFileName(fileName));
+          fileId = request.getFileId();
         } catch (Exception e) {
           e.printStackTrace();
         }
@@ -104,7 +107,7 @@ public class Editor implements ActionListener {
     if (ae.getSource() == edit) {
       Request request = new Request();
       try {
-        request = requestManager.editFile(correctFileName(fileName));
+        request = requestManager.editFile(correctFileName(fileName), fileId);
       } catch (Exception e) {
         e.printStackTrace();
       }
@@ -119,7 +122,7 @@ public class Editor implements ActionListener {
     if (ae.getSource() == save) {
       Request request = new Request();
       try {
-        request = requestManager.saveFile(correctFileName(fileName), editor.getText());
+        request = requestManager.saveFile(correctFileName(fileName), editor.getText(), fileId);
       } catch (Exception e) {
         e.printStackTrace();
       }

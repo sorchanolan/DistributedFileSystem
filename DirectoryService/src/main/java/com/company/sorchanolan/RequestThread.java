@@ -7,7 +7,10 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class RequestThread extends Thread implements Runnable {
   private volatile boolean running = true;
@@ -59,65 +62,89 @@ public class RequestThread extends Thread implements Runnable {
   private void processRequest(String message) throws Exception {
     System.out.println(message);
     if (message.startsWith("newfile")) {
-      FileServer fileServer = dao.getRandomFileServer();
-      outToClient.writeBytes(mapper.writeValueAsString(fileServer) + "\n");
+      newFile(message.replace("newfile", ""));
       return;
     }
 
     if (message.startsWith("listfiles")) {
-      List<String> fileNames = dao.getAllFileNamesFromRunningServers();
-      outToClient.writeBytes(mapper.writeValueAsString(fileNames) + "\n");
+      listFiles();
       return;
     }
 
     if (message.startsWith("openfile")) {
-      List<FileServer> servers = dao.getServersHoldingFile(message.replace("openfile", ""));
-      if (!servers.isEmpty()) {
-        outToClient.writeBytes(mapper.writeValueAsString(servers.get(0)) + "\n");
-      }
+      openFiles(message.replace("openfile", ""));
       return;
     }
 
     if (message.startsWith("fileserver")) {
-      message = message.replace("fileserver", "");
-      FileServer fileServer = mapper.readValue(message, FileServer.class);
-      List<String> fileNames = dao.getAllFileNamesFromRunningServers();
-
-      List<FileServer> maybeFileServer = dao.getFileServer(fileServer.getIpAddress(), fileServer.getPort());
-      if (maybeFileServer.isEmpty()) {
-        fileServer.setId(server.createID());
-        fileServer.setRunning(true);
-        dao.addNewServer(fileServer);
-      } else {
-        fileServer.setId(maybeFileServer.get(0).getId());
-        dao.setFileServerToRunning(maybeFileServer.get(0).getId());
-      }
-
-      for (String fileName : fileServer.getFiles()) {
-        if (!fileNames.contains(fileName)) {
-          int fileId = server.createID();
-          dao.addNewFile(fileId, fileName);
-          dao.addNewMapping(fileServer.getId(), fileId);
-          fileNames.add(fileName);
-        }
-      }
+      fileServerRequest(message.replace("fileserver", ""));
       return;
     }
 
     if (message.startsWith("lock")) {
-      String fileName = message.replace("lock", "");
-      if (!lockingService.checkIfLocked(fileName)) {
-        lockingService.setLock(server.createID(), fileName, userId);
-        outToClient.writeBytes("true\n");
-      } else {
-        outToClient.writeBytes("false\n");
-      }
+      outToClient.writeBytes(lockingService.lock(message.replace("lock", ""), server.createID(), userId));
       return;
     }
 
     if (message.startsWith("unlock")) {
-      String fileName = message.replace("lock", "");
-      lockingService.unlock(fileName, userId);
+      lockingService.unlock(Integer.getInteger(message.replace("unlock", "")), userId);
+    }
+  }
+
+  private void newFile(String message) throws Exception {
+    FileServer fileServer;
+    List<Integer> serversWithFileName = dao.getServersHoldingFile(message).stream()
+        .map(FileServer::getId)
+        .collect(Collectors.toList());
+    if (!serversWithFileName.isEmpty()) {
+      fileServer = dao.getRandomFileServer(serversWithFileName);
+    } else {
+      fileServer = dao.getRandomFileServer();
+    }
+    outToClient.writeBytes(mapper.writeValueAsString(fileServer) + "\n");
+  }
+
+  private void listFiles() throws Exception {
+    List<String> fileNames = dao.getAllFileNamesFromRunningServers();
+    outToClient.writeBytes(mapper.writeValueAsString(fileNames) + "\n");
+  }
+
+  private void openFiles(String message) throws Exception {
+    List<FileServer> servers = dao.getServersHoldingFile(message);
+    if (!servers.isEmpty()) {
+      outToClient.writeBytes(mapper.writeValueAsString(servers.get(0)) + "\n");
+    }
+  }
+
+  private void fileServerRequest(String message) throws Exception {
+    FileServer fileServer = mapper.readValue(message, FileServer.class);
+    List<ServerFileMapping> serverFileMappings = dao.getServerFileMappings();
+
+    List<FileServer> maybeFileServer = dao.getFileServer(fileServer.getIpAddress(), fileServer.getPort());
+    if (maybeFileServer.isEmpty()) {
+      fileServer.setId(server.createID());
+      fileServer.setRunning(true);
+      dao.addNewServer(fileServer);
+    } else {
+      fileServer.setId(maybeFileServer.get(0).getId());
+      dao.setFileServerToRunning(maybeFileServer.get(0).getId());
+    }
+
+    for (String fileName : fileServer.getFiles()) {
+      if (serverFileMappings.stream()
+          .noneMatch(mapping -> mapping.getFileName().equals(fileName)
+              && mapping.getPort() == fileServer.getPort()
+              && mapping.getIpAddress().equals(fileServer.getIpAddress()))) {
+        int fileId = server.createID();
+        dao.addNewFile(fileId, fileName);
+        dao.addNewMapping(fileServer.getId(), fileId);
+        serverFileMappings.add(new ServerFileMapping(fileName, fileServer.getPort(), fileServer.getIpAddress()));
+      }
+    }
+    if (!fileServer.getFiles().isEmpty()) {
+      outToClient.writeBytes(mapper.writeValueAsString(dao.getFiles(fileServer.getFiles())));
+    } else {
+      outToClient.writeBytes(mapper.writeValueAsString(new ArrayList()));
     }
   }
 }

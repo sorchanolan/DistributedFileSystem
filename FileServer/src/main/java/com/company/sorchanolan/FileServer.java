@@ -3,6 +3,7 @@ package com.company.sorchanolan;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.*;
 
 public class FileServer implements Runnable {
   public static String directoryIpAddress;
@@ -11,6 +12,7 @@ public class FileServer implements Runnable {
   private Thread thread = null;
   private ServerSocket welcomeSocket = null;
   private FileServerThread client = null;
+  public List<FileMap> files = Collections.synchronizedList(new ArrayList<>());
 
   public static void main(String[] argv) throws Exception {
     port = Integer.parseInt(argv[0]);
@@ -21,7 +23,7 @@ public class FileServer implements Runnable {
 
   public FileServer() throws Exception {
     System.out.println("Begin Comms");
-    new UpdateDirectory();
+    new UpdateDirectory(this);
     welcomeSocket = new ServerSocket(port);
 
     if (thread == null)
