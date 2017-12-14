@@ -4,6 +4,11 @@ import org.skife.jdbi.v2.DBI;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.HashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class DirectoryService implements Runnable {
   private Thread thread = null;
@@ -11,6 +16,7 @@ public class DirectoryService implements Runnable {
   private RequestThread requestThread = null;
   private DirectoryDao dao = null;
   private int idCounter = 1;
+  private int LOCK_POLLING_INTERVAL = 10;
   public static int port;
 
   public static void main(String[] argv) {
@@ -26,6 +32,9 @@ public class DirectoryService implements Runnable {
     dao = dbi.onDemand(DirectoryDao.class);
     idCounter = dao.getCurrentIdCounter() + 1;
     dao.setAllFileServersToNotRunning();
+
+    ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    scheduler.scheduleAtFixedRate(new LockingServicePolling(), 0, LOCK_POLLING_INTERVAL, TimeUnit.SECONDS);
 
     try {
       socket = new ServerSocket(port);
