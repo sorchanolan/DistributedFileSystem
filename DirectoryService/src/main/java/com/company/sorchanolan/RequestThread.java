@@ -9,14 +9,14 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.company.sorchanolan.DirectoryService.port;
 
 public class RequestThread extends Thread implements Runnable {
   private volatile boolean running = true;
   private Socket clientSocket = null;
   private DirectoryService server = null;
-  private int port = -1;
   private BufferedReader inFromClient = null;
   private DataOutputStream outToClient = null;
   private DirectoryDao dao = null;
@@ -28,7 +28,6 @@ public class RequestThread extends Thread implements Runnable {
     this.server = server;
     this.clientSocket = socket;
     this.dao = dao;
-    this.port = socket.getPort();
     mapper = new ObjectMapper();
     this.lockingService = new LockingService();
     this.userId = server.createID();
@@ -72,7 +71,7 @@ public class RequestThread extends Thread implements Runnable {
     }
 
     if (message.startsWith("openfile")) {
-      openFiles(message.replace("openfile", ""));
+      openFile(message.replace("openfile", ""));
       return;
     }
 
@@ -109,7 +108,7 @@ public class RequestThread extends Thread implements Runnable {
     outToClient.writeBytes(mapper.writeValueAsString(fileNames) + "\n");
   }
 
-  private void openFiles(String message) throws Exception {
+  private void openFile(String message) throws Exception {
     List<FileServer> servers = dao.getServersHoldingFile(message);
     if (!servers.isEmpty()) {
       outToClient.writeBytes(mapper.writeValueAsString(servers.get(0)) + "\n");
@@ -146,7 +145,7 @@ public class RequestThread extends Thread implements Runnable {
       System.out.println(mapper.writeValueAsString(dao.getFiles(fileServer.getFiles())));
       outToClient.writeBytes(mapper.writeValueAsString(dao.getFiles(fileServer.getFiles())) + "\n");
     } else {
-      outToClient.writeBytes(mapper.writeValueAsString(new ArrayList() + "\n"));
+      outToClient.writeBytes(mapper.writeValueAsString(new ArrayList()) + "\n");
     }
     System.out.println("Server online");
   }

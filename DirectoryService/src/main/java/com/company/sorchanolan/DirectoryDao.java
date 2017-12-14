@@ -33,10 +33,10 @@ public interface DirectoryDao {
   @SqlQuery("SELECT DISTINCT file_name, port, ip_address FROM File f JOIN ServerFileMapping m ON m.file_id = f.id JOIN FileServer fs ON m.file_server_id = fs.id")
   List<ServerFileMapping> getServerFileMappings();
 
-  @SqlQuery("SELECT * FROM FileServer WHERE id NOT IN (<file_server_ids>) ORDER BY RAND() LIMIT 1")
+  @SqlQuery("SELECT * FROM FileServer WHERE id NOT IN (<file_server_ids>) AND running = true ORDER BY RAND() LIMIT 1")
   FileServer getRandomFileServer(@BindIn("file_server_ids") List<Integer> fileServerIds);
 
-  @SqlQuery("SELECT * FROM FileServer ORDER BY RAND() LIMIT 1")
+  @SqlQuery("SELECT * FROM FileServer WHERE running = true ORDER BY RAND() LIMIT 1")
   FileServer getRandomFileServer();
 
   @SqlQuery("SELECT * FROM FileServer WHERE ip_address = :ip_address AND port = :port")

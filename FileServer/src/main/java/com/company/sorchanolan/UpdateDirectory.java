@@ -53,9 +53,12 @@ public class UpdateDirectory {
     String dataAsString = mapper.writeValueAsString(fileServerData);
     outToDirectory.writeBytes("fileserver" + dataAsString + "\n");
     TypeReference<List<FileMap>> typeRef = new TypeReference<List<FileMap>>() {};
-    List<FileMap> fileMaps = mapper.readValue(inFromDirectory.readLine(), typeRef);
-    fileMaps.stream()
-        .filter(fm -> !server.files.contains(fm))
-        .forEach(fm -> server.files.add(fm));
+    String input = inFromDirectory.readLine();
+    if (!input.equals("[]")) {
+      List<FileMap> fileMaps = mapper.readValue(input, typeRef);
+      fileMaps.stream()
+          .filter(fm -> !server.files.contains(fm))
+          .forEach(fm -> server.files.add(fm));
+    }
   }
 }

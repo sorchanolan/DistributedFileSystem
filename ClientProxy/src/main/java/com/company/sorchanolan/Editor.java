@@ -27,7 +27,6 @@ public class Editor implements ActionListener {
     open.addActionListener(this);
     edit.addActionListener(this);
     save.addActionListener(this);
-    addOpenMenu();
   }
 
   private JPanel createPanel(Request request) {
@@ -44,6 +43,7 @@ public class Editor implements ActionListener {
   public void display(Request request) {
     frame = new JFrame(request.getFileName());
     JMenuBar menuBar = new JMenuBar();
+    addOpenMenu();
     menuBar.add(open);
     menuBar.add(newFile);
     if (!request.getFileName().isEmpty()) {

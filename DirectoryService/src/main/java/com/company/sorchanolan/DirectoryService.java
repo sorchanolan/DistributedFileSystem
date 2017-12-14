@@ -11,13 +11,14 @@ public class DirectoryService implements Runnable {
   private RequestThread requestThread = null;
   private DirectoryDao dao = null;
   private int idCounter = 1;
+  public static int port;
 
   public static void main(String[] argv) {
-    int port = Integer.parseInt(argv[0]);
-    new DirectoryService(port);
+    port = Integer.parseInt(argv[0]);
+    new DirectoryService();
   }
 
-  public DirectoryService(int port) {
+  public DirectoryService() {
     System.out.println("Begin Comms");
 
     DBI dbi = new DBI("jdbc:mysql://localhost:3306/DirectoryService?autoReconnect=true&useSSL=false",

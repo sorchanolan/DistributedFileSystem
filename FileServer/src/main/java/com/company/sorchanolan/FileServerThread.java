@@ -89,7 +89,7 @@ public class FileServerThread extends Thread implements Runnable {
   }
 
   private void processWriteRequest(Request request) throws Exception {
-    File file = new File("Files/" + request.getFileName());
+    File file = new File("../Files_"  + port + "/" + request.getFileName());
     FileWriter fileWriter = new FileWriter(file, false);
     fileWriter.write(request.getBody());
     fileWriter.close();
