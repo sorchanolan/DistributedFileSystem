@@ -8,6 +8,7 @@ import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
+import static com.company.sorchanolan.Client.currentFile;
 import static com.company.sorchanolan.Client.ipAddress;
 import static com.company.sorchanolan.Client.port;
 
@@ -61,7 +62,9 @@ public class RequestManager {
     Request request = new Request(false, false, fileName, "", -1);
     String requestString = mapper.writeValueAsString(request);
     outToFileServer.writeBytes(requestString + "\n");
-    return mapper.readValue(inFromFileServer.readLine(), Request.class);
+    request = mapper.readValue(inFromFileServer.readLine(), Request.class);
+    currentFile = new File(request.getFileId(), request.getFileName(), request.getBody());
+    return request;
   }
 
   public Request editFile(String fileName, int fileId) throws Exception {
@@ -80,6 +83,7 @@ public class RequestManager {
     Request request = new Request(true, false, fileName, body, fileId);
     String requestString = mapper.writeValueAsString(request);
     outToFileServer.writeBytes(requestString + "\n");
+    currentFile.setBody(body);
     return mapper.readValue(inFromFileServer.readLine(), Request.class);
   }
 }

@@ -18,7 +18,7 @@ public class LockingService {
   }
 
   public String lock(String message, int id, int userId) {
-    int fileId = Integer.getInteger(message);
+    int fileId = Integer.parseInt(message);
     if (!checkIfLocked(fileId)) {
       setLock(id, fileId, userId);
       return "true\n";

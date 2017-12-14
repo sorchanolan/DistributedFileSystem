@@ -28,10 +28,10 @@ public class RequestThread extends Thread implements Runnable {
     this.server = server;
     this.clientSocket = socket;
     this.dao = dao;
-    port = socket.getPort();
+    this.port = socket.getPort();
     mapper = new ObjectMapper();
-    lockingService = new LockingService();
-    userId = server.createID();
+    this.lockingService = new LockingService();
+    this.userId = server.createID();
   }
 
   public void run() {
@@ -87,7 +87,7 @@ public class RequestThread extends Thread implements Runnable {
     }
 
     if (message.startsWith("unlock")) {
-      lockingService.unlock(Integer.getInteger(message.replace("unlock", "")), userId);
+      lockingService.unlock(Integer.parseInt(message.replace("unlock", "")), userId);
     }
   }
 
@@ -141,10 +141,13 @@ public class RequestThread extends Thread implements Runnable {
         serverFileMappings.add(new ServerFileMapping(fileName, fileServer.getPort(), fileServer.getIpAddress()));
       }
     }
+
     if (!fileServer.getFiles().isEmpty()) {
-      outToClient.writeBytes(mapper.writeValueAsString(dao.getFiles(fileServer.getFiles())));
+      System.out.println(mapper.writeValueAsString(dao.getFiles(fileServer.getFiles())));
+      outToClient.writeBytes(mapper.writeValueAsString(dao.getFiles(fileServer.getFiles())) + "\n");
     } else {
-      outToClient.writeBytes(mapper.writeValueAsString(new ArrayList()));
+      outToClient.writeBytes(mapper.writeValueAsString(new ArrayList() + "\n"));
     }
+    System.out.println("Server online");
   }
 }

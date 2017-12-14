@@ -27,10 +27,10 @@ public class UpdateDirectory {
   private FileServer server = null;
 
   public UpdateDirectory(FileServer server) throws Exception {
+    this.server = server;
     openDirectoryComms();
     mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     sendDataToDirectoryService();
-    this.server = server;
   }
 
   private void openDirectoryComms() throws Exception {
@@ -52,8 +52,8 @@ public class UpdateDirectory {
     FileServerData fileServerData = new FileServerData("localhost", port, files);
     String dataAsString = mapper.writeValueAsString(fileServerData);
     outToDirectory.writeBytes("fileserver" + dataAsString + "\n");
-    //TODO fix this weird mapping
-    List<FileMap> fileMaps = mapper.readValue(inFromDirectory.readLine(), ArrayList.class);
+    TypeReference<List<FileMap>> typeRef = new TypeReference<List<FileMap>>() {};
+    List<FileMap> fileMaps = mapper.readValue(inFromDirectory.readLine(), typeRef);
     fileMaps.stream()
         .filter(fm -> !server.files.contains(fm))
         .forEach(fm -> server.files.add(fm));
