@@ -131,6 +131,14 @@ public class Editor implements ActionListener {
     }
   }
 
+  public void fileUnlocked(int fileId) throws Exception {
+    if (this.fileId == fileId) {
+      request = requestManager.editFile(fileName, fileId);
+      display(request);
+      JOptionPane.showMessageDialog(frame, "Your file " + fileName + "is now unlocked for editing.");
+    }
+  }
+
   private String correctFileName(String name) {
     return name.contains(".txt") ? name : name + ".txt";
   }

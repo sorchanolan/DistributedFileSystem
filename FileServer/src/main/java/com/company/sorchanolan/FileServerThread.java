@@ -9,7 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Optional;
 
 import static com.company.sorchanolan.FileServer.port;
 
@@ -53,11 +52,19 @@ public class FileServerThread extends Thread implements Runnable {
   }
 
   private void processRequest(String clientMessage) throws Exception {
-    Request request = mapper.readValue(clientMessage, Request.class);
-    if (request.getWriteCommand()) {
-      processWriteRequest(request);
-    } else {
-      processReadRequest(request);
+    if (clientMessage.startsWith("newclient")) {
+      newClient(clientMessage.replace("newclient", ""));
+    }
+    else if (clientMessage.startsWith("kill")) {
+      dao.clientOffline(Integer.parseInt(clientMessage.replace("kill", "")));
+    }
+    else {
+      Request request = mapper.readValue(clientMessage, Request.class);
+      if (request.getWriteCommand()) {
+        processWriteRequest(request);
+      } else {
+        processReadRequest(request);
+      }
     }
   }
 
@@ -93,5 +100,11 @@ public class FileServerThread extends Thread implements Runnable {
     fileWriter.close();
 
     outToClient.writeBytes(mapper.writeValueAsString(request.withAccess(false)) + "\n");
+  }
+
+  private void newClient(String message) throws Exception {
+    Client client = mapper.readValue(message, Client.class);
+    client.setRunning(true);
+    dao.addNewClient(client);
   }
 }

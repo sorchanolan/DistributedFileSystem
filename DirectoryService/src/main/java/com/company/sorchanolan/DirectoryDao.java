@@ -48,7 +48,7 @@ public interface DirectoryDao {
   @SqlQuery("SELECT file_name, id FROM File WHERE file_name IN (<file_name>)")
   List<File> getFiles(@BindIn("file_name") List<String> fileNames);
 
-  @SqlQuery("SELECT MAX(id) FROM ((SELECT id FROM FileServer UNION ALL SELECT id FROM File) AS id)")
+  @SqlQuery("SELECT MAX(id) FROM ((SELECT id FROM FileServer UNION ALL SELECT id FROM File UNION ALL SELECT id FROM FileLock UNION ALL SELECT id FROM Client) AS id)")
   int getCurrentIdCounter();
 
   @SqlUpdate("INSERT INTO FileLock VALUES(:id, :file_id, :status, :valid_until, :user_id)")
@@ -59,6 +59,9 @@ public interface DirectoryDao {
 
   @SqlQuery("SELECT EXISTS (SELECT * FROM FileLock WHERE file_id = :file_id AND status = true AND valid_until > :current_time)")
   boolean lockExists(@Bind("file_id") int fileId, @Bind("current_time") long currentTime);
+
+  @SqlUpdate("UPDATE FileLock SET status = false WHERE user_id = :user_id")
+  void removeLocksForUser(@Bind("user_id") int userId);
 
   @SqlUpdate("UPDATE FileServer SET running = false")
   void setAllFileServersToNotRunning();
@@ -74,4 +77,13 @@ public interface DirectoryDao {
 
   @SqlQuery("SELECT * FROM LockQueue WHERE timestamp IN (SELECT MIN(timestamp) FROM LockQueue GROUP BY file_id)")
   List<LockQueueEntry> getTopsOfQueues();
+
+  @SqlUpdate("INSERT IGNORE INTO Client VALUES(:id, :port, :ip_address, :running)")
+  void addNewClient(@BindWithRosetta Client client);
+
+  @SqlUpdate("UPDATE Client SET running = false WHERE id = :id")
+  void clientOffline(@Bind("id") int id);
+
+  @SqlQuery("SELECT * FROM Client WHERE id = :id ORDER BY id ASC")
+  List<Client> getClient(@Bind("id") int id);
 }

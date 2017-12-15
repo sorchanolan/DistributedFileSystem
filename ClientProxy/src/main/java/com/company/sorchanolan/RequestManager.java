@@ -2,15 +2,17 @@ package com.company.sorchanolan;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
+import java.net.Inet6Address;
 import java.net.Socket;
 
 import static com.company.sorchanolan.Client.currentFile;
-import static com.company.sorchanolan.Client.ipAddress;
-import static com.company.sorchanolan.Client.port;
+import static com.company.sorchanolan.Client.directoryIpAddress;
+import static com.company.sorchanolan.Client.directoryPort;
 
 public class RequestManager {
   private Socket directorySocket = null;
@@ -20,9 +22,10 @@ public class RequestManager {
   private BufferedReader inFromDirectory = null;
   private DataOutputStream outToFileServer = null;
   private BufferedReader inFromFileServer = null;
+  private static int userId;
 
   public RequestManager() throws Exception {
-    openDirectoryComms(ipAddress, port);
+    openDirectoryComms(directoryIpAddress, directoryPort);
     mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
   }
 
@@ -30,12 +33,17 @@ public class RequestManager {
     directorySocket = new Socket(ipAddress, port);
     inFromDirectory = new BufferedReader(new InputStreamReader(directorySocket.getInputStream()));
     outToDirectory = new DataOutputStream(directorySocket.getOutputStream());
+    String output = new JSONObject().put("port", Client.port).put("ipAddress", "localhost").toString();
+    outToDirectory.writeBytes("newclient" + output + "\n");
+    userId = mapper.readValue(inFromDirectory.readLine(), int.class);
   }
 
   private void openFileServerComms(String ipAddress, int port) throws Exception {
     fileServerSocket = new Socket(ipAddress, port);
     inFromFileServer = new BufferedReader(new InputStreamReader(fileServerSocket.getInputStream()));
     outToFileServer = new DataOutputStream(fileServerSocket.getOutputStream());
+    String output = new JSONObject().put("port", port).put("ipAddress", "localhost").put("id", userId).toString();
+    outToFileServer.writeBytes("newclient" + output + "\n");
   }
 
   public Request newFile(String fileName) throws Exception {
@@ -85,5 +93,10 @@ public class RequestManager {
     outToFileServer.writeBytes(requestString + "\n");
     currentFile.setBody(body);
     return mapper.readValue(inFromFileServer.readLine(), Request.class);
+  }
+
+  public void killClient() throws Exception {
+    outToDirectory.writeBytes("kill" + userId + "\n");
+    outToFileServer.writeBytes("kill" + userId + "\n");
   }
 }

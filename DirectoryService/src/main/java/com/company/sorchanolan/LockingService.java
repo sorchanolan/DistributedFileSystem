@@ -51,4 +51,13 @@ public class LockingService {
   public List<LockQueueEntry> getTopsOfQueues() {
     return dao.getTopsOfQueues();
   }
+
+  public Optional<Client> getClient(int userId) {
+    Optional<Client> client = Optional.empty();
+    List<Client> clientList = dao.getClient(userId);
+    if (!clientList.isEmpty()) {
+      client = Optional.of(clientList.get(0));
+    }
+    return client;
+  }
 }

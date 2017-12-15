@@ -14,4 +14,4 @@ done
 cd ../
 cd ClientProxy
 mvn clean package
-mvn exec:java -Dexec.mainClass="com.company.sorchanolan.Client" -Dexec.args="$4 $1" &
+mvn exec:java -Dexec.mainClass="com.company.sorchanolan.Client" -Dexec.args="$4 $1 $5" &

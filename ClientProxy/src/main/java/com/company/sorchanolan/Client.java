@@ -8,22 +8,23 @@ public class Client implements Runnable {
   private Thread thread = null;
   private ServerSocket welcomeSocket = null;
   private ClientUpdatesThread updatesThread = null;
-  public static String ipAddress;
+  public static String directoryIpAddress;
+  public static int directoryPort;
   public static int port;
   public static File currentFile = null;
+  private Editor editor = null;
 
   public static void main(String[] args) throws Exception {
-    ipAddress = args[0];
-    port = Integer.valueOf(args[1]);
-    new Editor();
+    directoryIpAddress = args[0];
+    directoryPort = Integer.valueOf(args[1]);
+    port = Integer.valueOf(args[2]);
     new Client();
     runShutdownHook();
   }
 
   public Client() throws Exception {
-    System.out.println("Begin Comms");
+    editor = new Editor();
     welcomeSocket = new ServerSocket(port);
-
     if (thread == null)
     {
       thread = new Thread(this);
@@ -36,7 +37,7 @@ public class Client implements Runnable {
     while (thread != null) {
       try {
         Socket conSocket = welcomeSocket.accept();
-        updatesThread = new ClientUpdatesThread(conSocket);
+        updatesThread = new ClientUpdatesThread(conSocket, editor);
         updatesThread.start();
       } catch (IOException e) {
         System.out.println(e);
@@ -51,7 +52,7 @@ public class Client implements Runnable {
         if (currentFile != null) {
           try {
             RequestManager requestManager = new RequestManager();
-            requestManager.saveFile(currentFile.getFileName(), currentFile.getBody(), currentFile.getId());
+            requestManager.killClient();
           } catch (Exception e) {
             e.printStackTrace();
           }

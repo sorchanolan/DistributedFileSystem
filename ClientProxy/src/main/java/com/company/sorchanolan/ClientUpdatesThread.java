@@ -15,9 +15,11 @@ public class ClientUpdatesThread extends Thread implements Runnable {
   private BufferedReader inFromServer = null;
   private DataOutputStream outToServer = null;
   private ObjectMapper mapper = new ObjectMapper();
+  private Editor editor = null;
 
-  public ClientUpdatesThread(Socket socket) {
+  public ClientUpdatesThread(Socket socket, Editor editor) {
     this.socket = socket;
+    this.editor = editor;
     mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
   }
 
@@ -46,7 +48,10 @@ public class ClientUpdatesThread extends Thread implements Runnable {
     }
   }
 
-  private void processRequest(String message) {
-
+  private void processRequest(String message) throws Exception {
+    if (message.startsWith("unlocked")) {
+      int fileId = mapper.readValue(message.replace("unlocked", ""), int.class);
+      editor.fileUnlocked(fileId);
+    }
   }
 }

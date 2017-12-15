@@ -19,7 +19,7 @@ public class DirectoryService implements Runnable {
   private RequestThread requestThread = null;
   private DirectoryDao dao = null;
   private int idCounter = 1;
-  private int LOCK_POLLING_INTERVAL = 10;
+  private int LOCK_POLLING_INTERVAL = 1;
   public static int port;
   public Map<Integer, Socket> userIdToSocketMapping = Collections.synchronizedMap(new HashMap<Integer, Socket>());
 
@@ -38,7 +38,7 @@ public class DirectoryService implements Runnable {
     dao.setAllFileServersToNotRunning();
 
     ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    scheduler.scheduleAtFixedRate(new LockingServicePolling(this), 0, LOCK_POLLING_INTERVAL, TimeUnit.SECONDS);
+    scheduler.scheduleAtFixedRate(new LockingServicePolling(this), 0, LOCK_POLLING_INTERVAL, TimeUnit.MINUTES);
 
     try {
       socket = new ServerSocket(port);

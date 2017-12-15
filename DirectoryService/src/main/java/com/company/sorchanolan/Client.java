@@ -1,5 +1,9 @@
 package com.company.sorchanolan;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.hubspot.rosetta.annotations.RosettaNaming;
+
+@RosettaNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class Client {
   private int id;
   private int port;
@@ -38,5 +42,9 @@ public class Client {
 
   public void setRunning(boolean running) {
     this.running = running;
+  }
+
+  public void setId(int id) {
+    this.id = id;
   }
 }

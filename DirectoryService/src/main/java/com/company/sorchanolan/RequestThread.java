@@ -1,5 +1,6 @@
 package com.company.sorchanolan;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.BufferedReader;
@@ -29,6 +30,7 @@ public class RequestThread extends Thread implements Runnable {
     this.clientSocket = socket;
     this.dao = dao;
     mapper = new ObjectMapper();
+    mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     this.lockingService = new LockingService();
     this.userId = server.createID();
     server.userIdToSocketMapping.put(userId, socket);
@@ -88,6 +90,17 @@ public class RequestThread extends Thread implements Runnable {
 
     if (message.startsWith("unlock")) {
       lockingService.unlock(Integer.parseInt(message.replace("unlock", "")), userId);
+      return;
+    }
+
+    if (message.startsWith("newclient")) {
+      newClient(message.replace("newclient", ""));
+      return;
+    }
+
+    if (message.startsWith("kill")) {
+      dao.clientOffline(userId);
+      dao.removeLocksForUser(userId);
     }
   }
 
@@ -149,5 +162,13 @@ public class RequestThread extends Thread implements Runnable {
       outToClient.writeBytes(mapper.writeValueAsString(new ArrayList()) + "\n");
     }
     System.out.println("Server online");
+  }
+
+  private void newClient(String message) throws Exception {
+    Client client = mapper.readValue(message, Client.class);
+    client.setId(userId);
+    client.setRunning(true);
+    dao.addNewClient(client);
+    outToClient.writeBytes(userId + "\n");
   }
 }
