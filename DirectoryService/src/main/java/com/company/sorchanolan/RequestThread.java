@@ -102,8 +102,8 @@ public class RequestThread extends Thread implements Runnable {
     }
 
     if (message.startsWith("kill")) {
-      dao.clientOffline(userId);
-      dao.removeLocksForUser(userId);
+      dao.clientOffline(Integer.parseInt(message.replace("kill", "")));
+      dao.removeLocksForUser(Integer.parseInt(message.replace("kill", "")));
     }
   }
 

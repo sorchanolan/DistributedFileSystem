@@ -28,4 +28,7 @@ public interface Dao {
 
   @SqlQuery("SELECT id FROM File WHERE file_name = :file_name ORDER BY id ASC")
   List<Integer> getFile(@Bind("file_name") String fileName);
+
+  @SqlUpdate("DELETE FROM Cache WHERE user_id = :user_id")
+  void deleteUserCacheTracking(@Bind("user_id") int userId);
 }

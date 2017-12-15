@@ -1,6 +1,6 @@
 package com.company.sorchanolan;
 
-import com.company.sorchanolan.Models.File;
+import com.company.sorchanolan.Models.FileMap;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -13,8 +13,9 @@ public class ClientMain implements Runnable {
   public static String directoryIpAddress;
   public static int directoryPort;
   public static int port;
-  public static File currentFile = null;
+  public static FileMap currentFile = null;
   private Editor editor = null;
+  private static RequestManager requestManager = null;
 
   public static void main(String[] args) throws Exception {
     directoryIpAddress = args[0];
@@ -25,7 +26,8 @@ public class ClientMain implements Runnable {
   }
 
   public ClientMain() throws Exception {
-    editor = new Editor();
+    requestManager = new RequestManager();
+    editor = new Editor(requestManager);
     welcomeSocket = new ServerSocket(port);
     if (thread == null)
     {
@@ -51,13 +53,10 @@ public class ClientMain implements Runnable {
     Runtime.getRuntime().addShutdownHook(new Thread() {
       public void run() {
         System.out.println("Running Shutdown Hook");
-        if (currentFile != null) {
-          try {
-            RequestManager requestManager = new RequestManager();
-            requestManager.killClient();
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
+        try {
+          requestManager.killClient();
+        } catch (Exception e) {
+          e.printStackTrace();
         }
       }
     });

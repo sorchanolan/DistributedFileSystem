@@ -1,21 +1,18 @@
 package com.company.sorchanolan;
 
-import com.company.sorchanolan.Models.File;
+import com.company.sorchanolan.Models.FileMap;
 import com.company.sorchanolan.Models.FileServer;
 import com.company.sorchanolan.Models.Request;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.FileWriter;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.Socket;
-import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
 
 import static com.company.sorchanolan.ClientMain.*;
@@ -29,6 +26,7 @@ public class RequestManager {
   private DataOutputStream outToFileServer = null;
   private BufferedReader inFromFileServer = null;
   private static int userId;
+  private static boolean fileServerConnected = false;
 
   public RequestManager() throws Exception {
     openDirectoryComms(directoryIpAddress, directoryPort);
@@ -48,11 +46,15 @@ public class RequestManager {
     fileServerSocket = new Socket(ipAddress, port);
     inFromFileServer = new BufferedReader(new InputStreamReader(fileServerSocket.getInputStream()));
     outToFileServer = new DataOutputStream(fileServerSocket.getOutputStream());
-    String output = new JSONObject().put("port", ClientMain.port).put("ipAddress", "localhost").put("id", userId).toString();
-    outToFileServer.writeBytes("newclient" + output + "\n");
+    if (!fileServerConnected) {
+      String output = new JSONObject().put("port", ClientMain.port).put("ipAddress", "localhost").put("id", userId).toString();
+      outToFileServer.writeBytes("newclient" + output + "\n");
+      fileServerConnected = true;
+    }
   }
 
   public Request newFile(String fileName) throws Exception {
+    killClient();
     outToDirectory.writeBytes("newfile" + fileName + "\n");
     FileServer server = mapper.readValue(inFromDirectory.readLine(), FileServer.class);
     openFileServerComms(server.getIpAddress(), server.getPort());
@@ -73,13 +75,13 @@ public class RequestManager {
   }
 
   public Request readFile(String fileName) throws Exception {
-    Optional<Request> cacheRequest = checkCache();
+    Optional<Request> cacheRequest = checkCache(fileName);
     if (!cacheRequest.isPresent()) {
       Request request = new Request(false, false, fileName, "", -1);
       String requestString = mapper.writeValueAsString(request);
       outToFileServer.writeBytes(requestString + "\n");
       request = mapper.readValue(inFromFileServer.readLine(), Request.class);
-      currentFile = new File(request.getFileId(), request.getFileName(), request.getBody());
+      currentFile = new FileMap(request.getFileId(), request.getFileName(), request.getBody());
       cacheFile();
       return request;
     }
@@ -107,8 +109,17 @@ public class RequestManager {
   }
 
   public void killClient() throws Exception {
-    outToDirectory.writeBytes("kill" + userId + "\n");
+    String folderName = "Cache_"  + userId;
+    File folder = new File(folderName);
+    File[] listOfFiles = folder.listFiles();
+    if (listOfFiles != null) {
+      for (File file : listOfFiles) {
+        file.delete();
+      }
+    }
+    Files.deleteIfExists(Paths.get(folderName));
     outToFileServer.writeBytes("kill" + userId + "\n");
+    outToDirectory.writeBytes("kill" + userId + "\n");
   }
 
   public void cacheFile() throws Exception {
@@ -126,15 +137,12 @@ public class RequestManager {
     }
   }
 
-  public Optional<Request> checkCache() throws Exception {
-    if (currentFile != null) {
-      String path = "Cache_" + userId + "/" + currentFile.getFileName();
-      if (Files.exists(Paths.get(path))) {
-        Path filePath = Paths.get(path);
-        File file = mapper.readValue(String.join("\n", Files.readAllLines(Paths.get(path))), File.class);
-        Request request = new Request(false, false, file.getFileName(), file.getBody(), file.getId());
-        return Optional.of(request);
-      }
+  public Optional<Request> checkCache(String fileName) throws Exception {
+    String path = "Cache_" + userId + "/" + fileName;
+    if (Files.exists(Paths.get(path))) {
+      FileMap file = mapper.readValue(String.join("\n", Files.readAllLines(Paths.get(path))), FileMap.class);
+      Request request = new Request(false, false, file.getFileName(), file.getBody(), file.getId());
+      return Optional.of(request);
     }
     return Optional.empty();
   }

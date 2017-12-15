@@ -61,6 +61,7 @@ public class FileServerThread extends Thread implements Runnable {
     }
     else if (clientMessage.startsWith("kill")) {
       dao.clientOffline(Integer.parseInt(clientMessage.replace("kill", "")));
+      dao.deleteUserCacheTracking(Integer.parseInt(clientMessage.replace("kill", "")));
     }
     else {
       Request request = mapper.readValue(clientMessage, Request.class);

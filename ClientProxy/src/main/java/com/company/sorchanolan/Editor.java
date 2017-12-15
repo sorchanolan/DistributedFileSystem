@@ -22,8 +22,8 @@ public class Editor implements ActionListener {
   private RequestManager requestManager = null;
   private Request request = new Request();
 
-  public Editor() throws Exception {
-    requestManager = new RequestManager();
+  public Editor(RequestManager requestManager) throws Exception {
+    this.requestManager = requestManager;
     display(request);
     newFile.addActionListener(this);
     open.addActionListener(this);
