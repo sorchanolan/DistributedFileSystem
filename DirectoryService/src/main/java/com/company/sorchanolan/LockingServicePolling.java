@@ -25,7 +25,6 @@ public class LockingServicePolling implements Runnable {
 
     for (LockQueueEntry lockQueueEntry : topsOfQueues) {
       if (!lockingService.checkIfLocked(lockQueueEntry.getFileId())) {
-        //lockingService.lock(String.valueOf(lockQueueEntry.getFileId()), server.createID(), lockQueueEntry.getUserId());
         lockingService.removeFromQueue(lockQueueEntry);
         Optional<Client> client = lockingService.getClient(lockQueueEntry.getUserId());
         if (client.isPresent()) {
