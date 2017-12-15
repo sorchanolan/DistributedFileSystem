@@ -23,7 +23,8 @@ public class LockingService {
       setLock(id, fileId, userId);
       return "true\n";
     }
-      return "false\n";
+    putInQueue(new LockQueueEntry(fileId, userId, Instant.now().toEpochMilli()));
+    return "false\n";
   }
 
   public boolean checkIfLocked(int fileId) {
@@ -37,5 +38,17 @@ public class LockingService {
 
   public void unlock(int fileId, int userId) {
     dao.updateLockStatus(false, fileId, userId);
+  }
+
+  public void putInQueue(LockQueueEntry lockQueueEntry) {
+    dao.addToLockQueue(lockQueueEntry);
+  }
+
+  public void removeFromQueue(LockQueueEntry lockQueueEntry) {
+    dao.removeFromLockQueue(lockQueueEntry);
+  }
+
+  public List<LockQueueEntry> getTopsOfQueues() {
+    return dao.getTopsOfQueues();
   }
 }

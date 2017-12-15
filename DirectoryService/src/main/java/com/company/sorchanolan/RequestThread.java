@@ -31,6 +31,7 @@ public class RequestThread extends Thread implements Runnable {
     mapper = new ObjectMapper();
     this.lockingService = new LockingService();
     this.userId = server.createID();
+    server.userIdToSocketMapping.put(userId, socket);
   }
 
   public void run() {

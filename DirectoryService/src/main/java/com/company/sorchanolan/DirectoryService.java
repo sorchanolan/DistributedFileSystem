@@ -4,7 +4,10 @@ import org.skife.jdbi.v2.DBI;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -18,6 +21,7 @@ public class DirectoryService implements Runnable {
   private int idCounter = 1;
   private int LOCK_POLLING_INTERVAL = 10;
   public static int port;
+  public Map<Integer, Socket> userIdToSocketMapping = Collections.synchronizedMap(new HashMap<Integer, Socket>());
 
   public static void main(String[] argv) {
     port = Integer.parseInt(argv[0]);
@@ -34,7 +38,7 @@ public class DirectoryService implements Runnable {
     dao.setAllFileServersToNotRunning();
 
     ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    scheduler.scheduleAtFixedRate(new LockingServicePolling(), 0, LOCK_POLLING_INTERVAL, TimeUnit.SECONDS);
+    scheduler.scheduleAtFixedRate(new LockingServicePolling(this), 0, LOCK_POLLING_INTERVAL, TimeUnit.SECONDS);
 
     try {
       socket = new ServerSocket(port);

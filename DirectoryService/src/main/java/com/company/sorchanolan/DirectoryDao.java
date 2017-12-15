@@ -65,4 +65,13 @@ public interface DirectoryDao {
 
   @SqlUpdate("UPDATE FileServer SET running = true WHERE id = :id")
   void setFileServerToRunning(@Bind("id") int id);
+
+  @SqlUpdate("INSERT INTO LockQueue VALUES(:file_id, :user_id, :timestamp)")
+  void addToLockQueue(@BindWithRosetta LockQueueEntry lockQueueEntry);
+
+  @SqlUpdate("DELETE FROM LockQueue WHERE file_id = :file_id AND :user_id = :user_id AND timestamp = :timestamp")
+  void removeFromLockQueue(@BindWithRosetta LockQueueEntry lockQueueEntry);
+
+  @SqlQuery("SELECT * FROM LockQueue WHERE timestamp IN (SELECT MIN(timestamp) FROM LockQueue GROUP BY file_id)")
+  List<LockQueueEntry> getTopsOfQueues();
 }
