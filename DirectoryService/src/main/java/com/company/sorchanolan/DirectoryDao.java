@@ -1,5 +1,6 @@
 package com.company.sorchanolan;
 
+import com.company.sorchanolan.Models.*;
 import com.hubspot.rosetta.jdbi.BindWithRosetta;
 import com.hubspot.rosetta.jdbi.RosettaMapperFactory;
 import org.skife.jdbi.v2.sqlobject.Bind;
@@ -10,7 +11,6 @@ import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLoc
 import org.skife.jdbi.v2.unstable.BindIn;
 
 import java.util.List;
-import java.util.Optional;
 
 @UseStringTemplate3StatementLocator
 @RegisterMapperFactory(RosettaMapperFactory.class)

@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class FileServer implements Runnable {
+public class FileServerMain implements Runnable {
   public static String directoryIpAddress;
   public static int directoryPort;
   public static int port;
@@ -19,11 +19,11 @@ public class FileServer implements Runnable {
     port = Integer.parseInt(argv[0]);
     directoryIpAddress = argv[1];
     directoryPort = Integer.parseInt(argv[2]);
-    new FileServer();
+    new FileServerMain();
   }
 
-  public FileServer() throws Exception {
-    DBI dbi = new DBI("jdbc:mysql://localhost:3306/FileServer?autoReconnect=true&useSSL=false",
+  public FileServerMain() throws Exception {
+    DBI dbi = new DBI("jdbc:mysql://localhost:3306/FileServerMain?autoReconnect=true&useSSL=false",
         "sorcha", "Nolan123");
     dao = dbi.onDemand(Dao.class);
 

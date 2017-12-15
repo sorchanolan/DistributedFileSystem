@@ -1,4 +1,4 @@
-package com.company.sorchanolan;
+package com.company.sorchanolan.Models;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.hubspot.rosetta.annotations.RosettaNaming;
@@ -42,9 +42,5 @@ public class Client {
 
   public void setRunning(boolean running) {
     this.running = running;
-  }
-
-  public void setId(int id) {
-    this.id = id;
   }
 }

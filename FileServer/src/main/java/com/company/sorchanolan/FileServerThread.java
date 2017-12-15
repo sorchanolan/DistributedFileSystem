@@ -1,5 +1,8 @@
 package com.company.sorchanolan;
 
+import com.company.sorchanolan.Models.CacheMapping;
+import com.company.sorchanolan.Models.Client;
+import com.company.sorchanolan.Models.Request;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -10,7 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static com.company.sorchanolan.FileServer.port;
+import static com.company.sorchanolan.FileServerMain.port;
 
 public class FileServerThread extends Thread implements Runnable {
   private volatile boolean running = true;
@@ -19,6 +22,7 @@ public class FileServerThread extends Thread implements Runnable {
   private DataOutputStream outToClient = null;
   private ObjectMapper mapper = new ObjectMapper();
   private Dao dao = null;
+  private int userId = -1;
 
   public FileServerThread(Dao dao, Socket socket) {
     this.dao = dao;
@@ -91,6 +95,7 @@ public class FileServerThread extends Thread implements Runnable {
     request.setBody(body);
     System.out.println(mapper.writeValueAsString(request));
     outToClient.writeBytes(mapper.writeValueAsString(request) + "\n");
+    dao.addCacheEntry(new CacheMapping(userId, request.getFileId()));
   }
 
   private void processWriteRequest(Request request) throws Exception {
@@ -106,5 +111,6 @@ public class FileServerThread extends Thread implements Runnable {
     Client client = mapper.readValue(message, Client.class);
     client.setRunning(true);
     dao.addNewClient(client);
+    userId = client.getId();
   }
 }

@@ -1,5 +1,8 @@
 package com.company.sorchanolan;
 
+import com.company.sorchanolan.Models.CacheMapping;
+import com.company.sorchanolan.Models.Client;
+import com.company.sorchanolan.Models.FileMap;
 import com.hubspot.rosetta.jdbi.BindWithRosetta;
 import com.hubspot.rosetta.jdbi.RosettaMapperFactory;
 import org.skife.jdbi.v2.sqlobject.Bind;

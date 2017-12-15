@@ -1,10 +1,12 @@
 package com.company.sorchanolan;
 
+import com.company.sorchanolan.Models.File;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class Client implements Runnable {
+public class ClientMain implements Runnable {
   private Thread thread = null;
   private ServerSocket welcomeSocket = null;
   private ClientUpdatesThread updatesThread = null;
@@ -18,11 +20,11 @@ public class Client implements Runnable {
     directoryIpAddress = args[0];
     directoryPort = Integer.valueOf(args[1]);
     port = Integer.valueOf(args[2]);
-    new Client();
+    new ClientMain();
     runShutdownHook();
   }
 
-  public Client() throws Exception {
+  public ClientMain() throws Exception {
     editor = new Editor();
     welcomeSocket = new ServerSocket(port);
     if (thread == null)

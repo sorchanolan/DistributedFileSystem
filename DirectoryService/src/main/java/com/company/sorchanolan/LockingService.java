@@ -1,8 +1,10 @@
 package com.company.sorchanolan;
 
+import com.company.sorchanolan.Models.Client;
+import com.company.sorchanolan.Models.FileLock;
+import com.company.sorchanolan.Models.LockQueueEntry;
 import org.skife.jdbi.v2.DBI;
 
-import java.io.BufferedReader;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -12,7 +14,7 @@ public class LockingService {
   DirectoryDao dao;
 
   public LockingService() {
-    DBI dbi = new DBI("jdbc:mysql://localhost:3306/DirectoryService?autoReconnect=true&useSSL=false",
+    DBI dbi = new DBI("jdbc:mysql://localhost:3306/DirectoryServiceMain?autoReconnect=true&useSSL=false",
         "sorcha", "Nolan123");
     dao = dbi.onDemand(DirectoryDao.class);
   }

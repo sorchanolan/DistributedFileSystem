@@ -1,5 +1,8 @@
 package com.company.sorchanolan;
 
+import com.company.sorchanolan.Models.File;
+import com.company.sorchanolan.Models.FileServer;
+import com.company.sorchanolan.Models.Request;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONObject;
@@ -7,12 +10,11 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
-import java.net.Inet6Address;
 import java.net.Socket;
 
-import static com.company.sorchanolan.Client.currentFile;
-import static com.company.sorchanolan.Client.directoryIpAddress;
-import static com.company.sorchanolan.Client.directoryPort;
+import static com.company.sorchanolan.ClientMain.currentFile;
+import static com.company.sorchanolan.ClientMain.directoryIpAddress;
+import static com.company.sorchanolan.ClientMain.directoryPort;
 
 public class RequestManager {
   private Socket directorySocket = null;
@@ -33,7 +35,7 @@ public class RequestManager {
     directorySocket = new Socket(ipAddress, port);
     inFromDirectory = new BufferedReader(new InputStreamReader(directorySocket.getInputStream()));
     outToDirectory = new DataOutputStream(directorySocket.getOutputStream());
-    String output = new JSONObject().put("port", Client.port).put("ipAddress", "localhost").toString();
+    String output = new JSONObject().put("port", ClientMain.port).put("ipAddress", "localhost").toString();
     outToDirectory.writeBytes("newclient" + output + "\n");
     userId = mapper.readValue(inFromDirectory.readLine(), int.class);
   }
@@ -98,5 +100,9 @@ public class RequestManager {
   public void killClient() throws Exception {
     outToDirectory.writeBytes("kill" + userId + "\n");
     outToFileServer.writeBytes("kill" + userId + "\n");
+  }
+
+  public void cacheFile() {
+
   }
 }

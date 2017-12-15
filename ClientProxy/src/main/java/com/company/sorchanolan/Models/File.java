@@ -1,4 +1,4 @@
-package com.company.sorchanolan;
+package com.company.sorchanolan.Models;
 
 public class File {
   private int id;

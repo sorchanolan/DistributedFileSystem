@@ -1,5 +1,7 @@
 package com.company.sorchanolan;
 
+import com.company.sorchanolan.Models.Request;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;

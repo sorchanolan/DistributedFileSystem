@@ -1,5 +1,8 @@
 package com.company.sorchanolan;
 
+import com.company.sorchanolan.Models.Client;
+import com.company.sorchanolan.Models.LockQueueEntry;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
@@ -9,9 +12,9 @@ import java.util.Optional;
 
 public class LockingServicePolling implements Runnable {
   private LockingService lockingService;
-  private DirectoryService server;
+  private DirectoryServiceMain server;
 
-  public LockingServicePolling(DirectoryService server) {
+  public LockingServicePolling(DirectoryServiceMain server) {
     this.lockingService = new LockingService();
     this.server = server;
   }

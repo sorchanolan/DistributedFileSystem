@@ -8,12 +8,11 @@ import java.net.Socket;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class DirectoryService implements Runnable {
+public class DirectoryServiceMain implements Runnable {
   private Thread thread = null;
   private ServerSocket socket = null;
   private RequestThread requestThread = null;
@@ -25,13 +24,13 @@ public class DirectoryService implements Runnable {
 
   public static void main(String[] argv) {
     port = Integer.parseInt(argv[0]);
-    new DirectoryService();
+    new DirectoryServiceMain();
   }
 
-  public DirectoryService() {
+  public DirectoryServiceMain() {
     System.out.println("Begin Comms");
 
-    DBI dbi = new DBI("jdbc:mysql://localhost:3306/DirectoryService?autoReconnect=true&useSSL=false",
+    DBI dbi = new DBI("jdbc:mysql://localhost:3306/DirectoryServiceMain?autoReconnect=true&useSSL=false",
         "sorcha", "Nolan123");
     dao = dbi.onDemand(DirectoryDao.class);
     idCounter = dao.getCurrentIdCounter() + 1;

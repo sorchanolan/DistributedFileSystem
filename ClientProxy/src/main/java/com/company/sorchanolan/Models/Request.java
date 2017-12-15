@@ -1,4 +1,4 @@
-package com.company.sorchanolan;
+package com.company.sorchanolan.Models;
 
 public class Request {
   private boolean writeCommand;
@@ -61,10 +61,5 @@ public class Request {
 
   public void setFileId(int fileId) {
     this.fileId = fileId;
-  }
-
-  public Request withAccess(boolean access) {
-    this.setWriteAccess(access);
-    return this;
   }
 }
