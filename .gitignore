@@ -7,3 +7,5 @@ ClientProxy/target
 DirectoryService/.idea
 FileServer/Files/*
 Files_*
+ClientProxy/Cache_*
+DirectoryService/target

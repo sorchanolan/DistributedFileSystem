@@ -30,7 +30,7 @@ public class DirectoryServiceMain implements Runnable {
   public DirectoryServiceMain() {
     System.out.println("Begin Comms");
 
-    DBI dbi = new DBI("jdbc:mysql://localhost:3306/DirectoryServiceMain?autoReconnect=true&useSSL=false",
+    DBI dbi = new DBI("jdbc:mysql://localhost:3306/DirectoryService?autoReconnect=true&useSSL=false",
         "sorcha", "Nolan123");
     dao = dbi.onDemand(DirectoryDao.class);
     idCounter = dao.getCurrentIdCounter() + 1;

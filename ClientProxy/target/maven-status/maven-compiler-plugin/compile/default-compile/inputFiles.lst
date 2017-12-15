@@ -1,7 +1,7 @@
 /Users/sorchanolan/IdeaProjects/DistributedFileSystem/ClientProxy/src/main/java/com/company/sorchanolan/Editor.java
-/Users/sorchanolan/IdeaProjects/DistributedFileSystem/ClientProxy/src/main/java/com/company/sorchanolan/Request.java
-/Users/sorchanolan/IdeaProjects/DistributedFileSystem/ClientProxy/src/main/java/com/company/sorchanolan/File.java
-/Users/sorchanolan/IdeaProjects/DistributedFileSystem/ClientProxy/src/main/java/com/company/sorchanolan/FileServer.java
+/Users/sorchanolan/IdeaProjects/DistributedFileSystem/ClientProxy/src/main/java/com/company/sorchanolan/Models/FileServer.java
+/Users/sorchanolan/IdeaProjects/DistributedFileSystem/ClientProxy/src/main/java/com/company/sorchanolan/ClientMain.java
+/Users/sorchanolan/IdeaProjects/DistributedFileSystem/ClientProxy/src/main/java/com/company/sorchanolan/Models/File.java
+/Users/sorchanolan/IdeaProjects/DistributedFileSystem/ClientProxy/src/main/java/com/company/sorchanolan/Models/Request.java
 /Users/sorchanolan/IdeaProjects/DistributedFileSystem/ClientProxy/src/main/java/com/company/sorchanolan/ClientUpdatesThread.java
-/Users/sorchanolan/IdeaProjects/DistributedFileSystem/ClientProxy/src/main/java/com/company/sorchanolan/Client.java
 /Users/sorchanolan/IdeaProjects/DistributedFileSystem/ClientProxy/src/main/java/com/company/sorchanolan/RequestManager.java

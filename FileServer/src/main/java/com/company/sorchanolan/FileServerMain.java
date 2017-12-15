@@ -23,7 +23,7 @@ public class FileServerMain implements Runnable {
   }
 
   public FileServerMain() throws Exception {
-    DBI dbi = new DBI("jdbc:mysql://localhost:3306/FileServerMain?autoReconnect=true&useSSL=false",
+    DBI dbi = new DBI("jdbc:mysql://localhost:3306/FileServer?autoReconnect=true&useSSL=false",
         "sorcha", "Nolan123");
     dao = dbi.onDemand(Dao.class);
 

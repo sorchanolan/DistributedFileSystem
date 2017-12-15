@@ -9,12 +9,14 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-import static com.company.sorchanolan.ClientMain.currentFile;
-import static com.company.sorchanolan.ClientMain.directoryIpAddress;
-import static com.company.sorchanolan.ClientMain.directoryPort;
+import static com.company.sorchanolan.ClientMain.*;
 
 public class RequestManager {
   private Socket directorySocket = null;
@@ -35,7 +37,7 @@ public class RequestManager {
     directorySocket = new Socket(ipAddress, port);
     inFromDirectory = new BufferedReader(new InputStreamReader(directorySocket.getInputStream()));
     outToDirectory = new DataOutputStream(directorySocket.getOutputStream());
-    String output = new JSONObject().put("port", ClientMain.port).put("ipAddress", "localhost").toString();
+    String output = new JSONObject().put("port", port).put("ipAddress", "localhost").toString();
     outToDirectory.writeBytes("newclient" + output + "\n");
     userId = mapper.readValue(inFromDirectory.readLine(), int.class);
   }
@@ -74,6 +76,7 @@ public class RequestManager {
     outToFileServer.writeBytes(requestString + "\n");
     request = mapper.readValue(inFromFileServer.readLine(), Request.class);
     currentFile = new File(request.getFileId(), request.getFileName(), request.getBody());
+    cacheFile();
     return request;
   }
 
@@ -102,7 +105,18 @@ public class RequestManager {
     outToFileServer.writeBytes("kill" + userId + "\n");
   }
 
-  public void cacheFile() {
-
+  public void cacheFile() throws Exception {
+    String path = "Cache_"  + userId + "/" + currentFile.getFileName();
+    if (!Files.exists(Paths.get(path))) {
+      Path directoryPath = Paths.get("Cache_"  + userId + "/");
+      if (!Files.exists(directoryPath)) {
+        Files.createDirectory(directoryPath);
+      }
+      Path filePath = Paths.get(path);
+      Files.createFile(filePath);
+      FileWriter fileWriter = new FileWriter(new java.io.File(path), false);
+      fileWriter.write(currentFile.getBody());
+      fileWriter.close();
+    }
   }
 }
