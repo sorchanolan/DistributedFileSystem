@@ -1,5 +1,7 @@
 package com.company.sorchanolan;
 
+import com.company.sorchanolan.Models.Request;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -20,8 +22,8 @@ public class Editor implements ActionListener {
   private RequestManager requestManager = null;
   private Request request = new Request();
 
-  public Editor() throws Exception {
-    requestManager = new RequestManager();
+  public Editor(RequestManager requestManager) throws Exception {
+    this.requestManager = requestManager;
     display(request);
     newFile.addActionListener(this);
     open.addActionListener(this);
@@ -135,7 +137,7 @@ public class Editor implements ActionListener {
     if (this.fileId == fileId) {
       request = requestManager.editFile(fileName, fileId);
       display(request);
-      JOptionPane.showMessageDialog(frame, "Your file " + fileName + "is now unlocked for editing.");
+      JOptionPane.showMessageDialog(frame, "Your file " + fileName + " is now unlocked for editing.");
     }
   }
 

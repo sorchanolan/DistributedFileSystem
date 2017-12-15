@@ -1,9 +1,9 @@
 com/company/sorchanolan/ClientUpdatesThread.class
-com/company/sorchanolan/File.class
 com/company/sorchanolan/RequestManager.class
-com/company/sorchanolan/Client.class
-com/company/sorchanolan/FileServer.class
-com/company/sorchanolan/Request.class
+com/company/sorchanolan/Models/Request.class
+com/company/sorchanolan/ClientMain$1.class
+com/company/sorchanolan/Models/FileMap.class
 com/company/sorchanolan/Editor$1.class
-com/company/sorchanolan/Client$1.class
+com/company/sorchanolan/Models/FileServer.class
+com/company/sorchanolan/ClientMain.class
 com/company/sorchanolan/Editor.class

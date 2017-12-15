@@ -1,5 +1,8 @@
 package com.company.sorchanolan;
 
+import com.company.sorchanolan.Models.Client;
+import com.company.sorchanolan.Models.FileServer;
+import com.company.sorchanolan.Models.ServerFileMapping;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -12,12 +15,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.company.sorchanolan.DirectoryService.port;
+import static com.company.sorchanolan.DirectoryServiceMain.port;
 
 public class RequestThread extends Thread implements Runnable {
   private volatile boolean running = true;
   private Socket clientSocket = null;
-  private DirectoryService server = null;
+  private DirectoryServiceMain server = null;
   private BufferedReader inFromClient = null;
   private DataOutputStream outToClient = null;
   private DirectoryDao dao = null;
@@ -25,7 +28,7 @@ public class RequestThread extends Thread implements Runnable {
   private LockingService lockingService = null;
   private int userId;
 
-  public RequestThread(DirectoryService server, Socket socket, DirectoryDao dao) {
+  public RequestThread(DirectoryServiceMain server, Socket socket, DirectoryDao dao) {
     this.server = server;
     this.clientSocket = socket;
     this.dao = dao;
@@ -99,8 +102,8 @@ public class RequestThread extends Thread implements Runnable {
     }
 
     if (message.startsWith("kill")) {
-      dao.clientOffline(userId);
-      dao.removeLocksForUser(userId);
+      dao.clientOffline(Integer.parseInt(message.replace("kill", "")));
+      dao.removeLocksForUser(Integer.parseInt(message.replace("kill", "")));
     }
   }
 

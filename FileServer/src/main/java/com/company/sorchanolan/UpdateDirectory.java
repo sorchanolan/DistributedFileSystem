@@ -1,5 +1,7 @@
 package com.company.sorchanolan;
 
+import com.company.sorchanolan.Models.FileMap;
+import com.company.sorchanolan.Models.FileServerData;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,13 +13,12 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.company.sorchanolan.FileServer.directoryIpAddress;
-import static com.company.sorchanolan.FileServer.directoryPort;
-import static com.company.sorchanolan.FileServer.port;
+import static com.company.sorchanolan.FileServerMain.directoryIpAddress;
+import static com.company.sorchanolan.FileServerMain.directoryPort;
+import static com.company.sorchanolan.FileServerMain.port;
 
 public class UpdateDirectory {
   private Socket directorySocket = null;

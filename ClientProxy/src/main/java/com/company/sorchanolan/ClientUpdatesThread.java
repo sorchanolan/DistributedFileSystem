@@ -1,5 +1,6 @@
 package com.company.sorchanolan;
 
+import com.company.sorchanolan.Models.FileMap;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -16,10 +17,12 @@ public class ClientUpdatesThread extends Thread implements Runnable {
   private DataOutputStream outToServer = null;
   private ObjectMapper mapper = new ObjectMapper();
   private Editor editor = null;
+  private RequestManager requestManager = null;
 
-  public ClientUpdatesThread(Socket socket, Editor editor) {
+  public ClientUpdatesThread(Socket socket, Editor editor, RequestManager requestManager) {
     this.socket = socket;
     this.editor = editor;
+    this.requestManager = requestManager;
     mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
   }
 
@@ -52,6 +55,12 @@ public class ClientUpdatesThread extends Thread implements Runnable {
     if (message.startsWith("unlocked")) {
       int fileId = mapper.readValue(message.replace("unlocked", ""), int.class);
       editor.fileUnlocked(fileId);
+      return;
+    }
+
+    if (message.startsWith("invalidate")) {
+      FileMap file = mapper.readValue(message.replace("invalidate", ""), FileMap.class);
+      requestManager.updateCache(file);
     }
   }
 }

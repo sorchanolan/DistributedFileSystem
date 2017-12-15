@@ -1,5 +1,8 @@
 package com.company.sorchanolan;
 
+import com.company.sorchanolan.Models.CacheMapping;
+import com.company.sorchanolan.Models.Client;
+import com.company.sorchanolan.Models.FileMap;
 import com.hubspot.rosetta.jdbi.BindWithRosetta;
 import com.hubspot.rosetta.jdbi.RosettaMapperFactory;
 import org.skife.jdbi.v2.sqlobject.Bind;
@@ -25,4 +28,10 @@ public interface Dao {
 
   @SqlQuery("SELECT id FROM File WHERE file_name = :file_name ORDER BY id ASC")
   List<Integer> getFile(@Bind("file_name") String fileName);
+
+  @SqlUpdate("DELETE FROM Cache WHERE user_id = :user_id")
+  void deleteUserCacheTracking(@Bind("user_id") int userId);
+
+  @SqlQuery("SELECT * FROM Client WHERE id IN (SELECT user_id FROM Cache WHERE file_id = :file_id) AND running = true")
+  List<Client> getClientsWithFileCached(@Bind("file_id") int fileId);
 }

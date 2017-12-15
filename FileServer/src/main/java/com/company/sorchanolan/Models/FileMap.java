@@ -1,21 +1,24 @@
-package com.company.sorchanolan;
+package com.company.sorchanolan.Models;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.hubspot.rosetta.annotations.RosettaNaming;
 
 @RosettaNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class File {
+public class FileMap {
   private int id;
   private String fileName;
+  private String body;
 
-  public File() {
+  public FileMap() {
     this.id = -1;
     this.fileName = "";
+    this.body = "";
   }
 
-  public File(int id, String fileName) {
+  public FileMap(int id, String fileName, String body) {
     this.id = id;
     this.fileName = fileName;
+    this.body = body;
   }
 
   public String getFileName() {
@@ -24,5 +27,9 @@ public class File {
 
   public int getId() {
     return id;
+  }
+
+  public String getBody() {
+    return body;
   }
 }

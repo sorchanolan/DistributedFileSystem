@@ -1,4 +1,4 @@
-package com.company.sorchanolan;
+package com.company.sorchanolan.Models;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.hubspot.rosetta.annotations.RosettaNaming;
