@@ -7,15 +7,18 @@ import com.hubspot.rosetta.annotations.RosettaNaming;
 public class FileMap {
   private int id;
   private String fileName;
+  private String body;
 
   public FileMap() {
     this.id = -1;
     this.fileName = "";
+    this.body = "";
   }
 
-  public FileMap(int id, String fileName) {
+  public FileMap(int id, String fileName, String body) {
     this.id = id;
     this.fileName = fileName;
+    this.body = body;
   }
 
   public String getFileName() {
@@ -24,5 +27,9 @@ public class FileMap {
 
   public int getId() {
     return id;
+  }
+
+  public String getBody() {
+    return body;
   }
 }

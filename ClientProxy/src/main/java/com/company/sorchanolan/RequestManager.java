@@ -105,6 +105,7 @@ public class RequestManager {
     String requestString = mapper.writeValueAsString(request);
     outToFileServer.writeBytes(requestString + "\n");
     currentFile.setBody(body);
+    updateCache(currentFile);
     return mapper.readValue(inFromFileServer.readLine(), Request.class);
   }
 
@@ -131,8 +132,8 @@ public class RequestManager {
       }
       Path filePath = Paths.get(path);
       Files.createFile(filePath);
-      FileWriter fileWriter = new FileWriter(new java.io.File(path), false);
-      fileWriter.write("{\"fileId\": \"" + currentFile.getId() + "\", \"fileName\": \"" + currentFile.getFileName() + "\", \"body\": \"" + currentFile.getBody() + "\"}");
+      FileWriter fileWriter = new FileWriter(new File(path), false);
+      fileWriter.write( mapper.writeValueAsString(currentFile));
       fileWriter.close();
     }
   }
@@ -145,5 +146,16 @@ public class RequestManager {
       return Optional.of(request);
     }
     return Optional.empty();
+  }
+
+  public void updateCache(FileMap file) throws Exception {
+    String path = "Cache_" + userId + "/" + file.getFileName();
+    if (Files.exists(Paths.get(path))) {
+      FileMap fileFromCache = mapper.readValue(String.join("\n", Files.readAllLines(Paths.get(path))), FileMap.class);
+      fileFromCache.setBody(file.getBody());
+      FileWriter fileWriter = new FileWriter(new File(path), false);
+      fileWriter.write(mapper.writeValueAsString(fileFromCache));
+      fileWriter.close();
+    }
   }
 }

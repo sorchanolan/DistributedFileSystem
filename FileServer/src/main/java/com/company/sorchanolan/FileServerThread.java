@@ -2,6 +2,7 @@ package com.company.sorchanolan;
 
 import com.company.sorchanolan.Models.CacheMapping;
 import com.company.sorchanolan.Models.Client;
+import com.company.sorchanolan.Models.FileMap;
 import com.company.sorchanolan.Models.Request;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -104,7 +105,7 @@ public class FileServerThread extends Thread implements Runnable {
     FileWriter fileWriter = new FileWriter(file, false);
     fileWriter.write(request.getBody());
     fileWriter.close();
-
+    invalidateCaches(new FileMap(request.getFileId(), request.getFileName(), request.getBody()));
     outToClient.writeBytes(mapper.writeValueAsString(request.withAccess(false)) + "\n");
   }
 
@@ -113,5 +114,14 @@ public class FileServerThread extends Thread implements Runnable {
     client.setRunning(true);
     dao.addNewClient(client);
     userId = client.getId();
+  }
+
+  private void invalidateCaches(FileMap file) throws Exception {
+    List<Client> clients = dao.getClientsWithFileCached(file.getId());
+    for (Client client : clients) {
+      Socket socket = new Socket(client.getIpAddress(), client.getPort());
+      DataOutputStream outToClientUpdate = new DataOutputStream(socket.getOutputStream());
+      outToClientUpdate.writeBytes("invalidate" + mapper.writeValueAsString(file) + "\n");
+    }
   }
 }

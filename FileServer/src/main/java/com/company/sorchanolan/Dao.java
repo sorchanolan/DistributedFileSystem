@@ -31,4 +31,7 @@ public interface Dao {
 
   @SqlUpdate("DELETE FROM Cache WHERE user_id = :user_id")
   void deleteUserCacheTracking(@Bind("user_id") int userId);
+
+  @SqlQuery("SELECT * FROM Client WHERE id IN (SELECT user_id FROM Cache WHERE file_id = :file_id) AND running = true")
+  List<Client> getClientsWithFileCached(@Bind("file_id") int fileId);
 }

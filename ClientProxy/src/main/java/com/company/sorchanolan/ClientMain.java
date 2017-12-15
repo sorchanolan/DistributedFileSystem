@@ -41,7 +41,7 @@ public class ClientMain implements Runnable {
     while (thread != null) {
       try {
         Socket conSocket = welcomeSocket.accept();
-        updatesThread = new ClientUpdatesThread(conSocket, editor);
+        updatesThread = new ClientUpdatesThread(conSocket, editor, requestManager);
         updatesThread.start();
       } catch (IOException e) {
         System.out.println(e);

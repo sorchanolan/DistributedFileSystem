@@ -14,7 +14,7 @@ public class LockingService {
   DirectoryDao dao;
 
   public LockingService() {
-    DBI dbi = new DBI("jdbc:mysql://localhost:3306/DirectoryServiceMain?autoReconnect=true&useSSL=false",
+    DBI dbi = new DBI("jdbc:mysql://localhost:3306/DirectoryService?autoReconnect=true&useSSL=false",
         "sorcha", "Nolan123");
     dao = dbi.onDemand(DirectoryDao.class);
   }

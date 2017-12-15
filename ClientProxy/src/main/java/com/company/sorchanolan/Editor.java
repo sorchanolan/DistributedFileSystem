@@ -137,7 +137,7 @@ public class Editor implements ActionListener {
     if (this.fileId == fileId) {
       request = requestManager.editFile(fileName, fileId);
       display(request);
-      JOptionPane.showMessageDialog(frame, "Your file " + fileName + "is now unlocked for editing.");
+      JOptionPane.showMessageDialog(frame, "Your file " + fileName + " is now unlocked for editing.");
     }
   }
 
