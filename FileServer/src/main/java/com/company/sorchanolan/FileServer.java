@@ -1,5 +1,7 @@
 package com.company.sorchanolan;
 
+import org.skife.jdbi.v2.DBI;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -12,6 +14,7 @@ public class FileServer implements Runnable {
   private Thread thread = null;
   private ServerSocket welcomeSocket = null;
   private FileServerThread client = null;
+  private Dao dao = null;
   public List<FileMap> files = Collections.synchronizedList(new ArrayList<>());
 
   public static void main(String[] argv) throws Exception {
@@ -22,6 +25,10 @@ public class FileServer implements Runnable {
   }
 
   public FileServer() throws Exception {
+    DBI dbi = new DBI("jdbc:mysql://localhost:3306/DirectoryService?autoReconnect=true&useSSL=false",
+        "sorcha", "Nolan123");
+    dao = dbi.onDemand(Dao.class);
+
     System.out.println("Begin Comms");
     new UpdateDirectory(this);
     welcomeSocket = new ServerSocket(port);
