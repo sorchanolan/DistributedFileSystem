@@ -24,10 +24,10 @@ public class UpdateDirectory {
   private ObjectMapper mapper = new ObjectMapper();
   private DataOutputStream outToDirectory = null;
   private BufferedReader inFromDirectory = null;
-  private FileServer server = null;
+  private Dao dao = null;
 
-  public UpdateDirectory(FileServer server) throws Exception {
-    this.server = server;
+  public UpdateDirectory(Dao dao) throws Exception {
+    this.dao = dao;
     openDirectoryComms();
     mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     sendDataToDirectoryService();
@@ -56,9 +56,7 @@ public class UpdateDirectory {
     String input = inFromDirectory.readLine();
     if (!input.equals("[]")) {
       List<FileMap> fileMaps = mapper.readValue(input, typeRef);
-      fileMaps.stream()
-          .filter(fm -> !server.files.contains(fm))
-          .forEach(fm -> server.files.add(fm));
+      fileMaps.forEach(file -> dao.addNewFile(file));
     }
   }
 }

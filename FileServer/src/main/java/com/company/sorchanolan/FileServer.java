@@ -5,7 +5,6 @@ import org.skife.jdbi.v2.DBI;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.*;
 
 public class FileServer implements Runnable {
   public static String directoryIpAddress;
@@ -15,7 +14,6 @@ public class FileServer implements Runnable {
   private ServerSocket welcomeSocket = null;
   private FileServerThread client = null;
   private Dao dao = null;
-  public List<FileMap> files = Collections.synchronizedList(new ArrayList<>());
 
   public static void main(String[] argv) throws Exception {
     port = Integer.parseInt(argv[0]);
@@ -25,12 +23,12 @@ public class FileServer implements Runnable {
   }
 
   public FileServer() throws Exception {
-    DBI dbi = new DBI("jdbc:mysql://localhost:3306/DirectoryService?autoReconnect=true&useSSL=false",
+    DBI dbi = new DBI("jdbc:mysql://localhost:3306/FileServer?autoReconnect=true&useSSL=false",
         "sorcha", "Nolan123");
     dao = dbi.onDemand(Dao.class);
 
     System.out.println("Begin Comms");
-    new UpdateDirectory(this);
+    new UpdateDirectory(dao);
     welcomeSocket = new ServerSocket(port);
 
     if (thread == null)
@@ -45,7 +43,7 @@ public class FileServer implements Runnable {
     while (thread != null) {
       try {
         Socket conSocket = welcomeSocket.accept();
-        client = new FileServerThread(this, conSocket);
+        client = new FileServerThread(dao, conSocket);
         client.start();
       } catch (IOException e) {
         System.out.println(e);

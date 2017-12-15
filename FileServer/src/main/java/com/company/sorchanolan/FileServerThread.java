@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
 
 import static com.company.sorchanolan.FileServer.port;
@@ -15,13 +16,13 @@ import static com.company.sorchanolan.FileServer.port;
 public class FileServerThread extends Thread implements Runnable {
   private volatile boolean running = true;
   private Socket socket = null;
-  private FileServer server = null;
   private BufferedReader inFromClient = null;
   private DataOutputStream outToClient = null;
   private ObjectMapper mapper = new ObjectMapper();
+  private Dao dao = null;
 
-  public FileServerThread(FileServer server, Socket socket) {
-    this.server = server;
+  public FileServerThread(Dao dao, Socket socket) {
+    this.dao = dao;
     this.socket = socket;
     mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
   }
@@ -72,15 +73,12 @@ public class FileServerThread extends Thread implements Runnable {
       }
       Path filePath = Paths.get(path);
       Files.createFile(filePath);
-      new UpdateDirectory(server);
+      new UpdateDirectory(dao);
     }
 
-    Optional<Integer> fileId = server.files.stream()
-        .filter(fileMap -> fileMap.getFileName().equals(request.getFileName()))
-        .map(FileMap::getId)
-        .findAny();
-    if (fileId.isPresent()) {
-      request.setFileId(fileId.get());
+    List<Integer> fileIds = dao.getFile(request.getFileName());
+    if (!fileIds.isEmpty()) {
+      request.setFileId(fileIds.get(0));
     }
 
     request.setBody(body);

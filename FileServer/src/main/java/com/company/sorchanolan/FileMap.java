@@ -1,5 +1,9 @@
 package com.company.sorchanolan;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.hubspot.rosetta.annotations.RosettaNaming;
+
+@RosettaNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class FileMap {
   private int id;
   private String fileName;
