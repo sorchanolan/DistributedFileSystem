@@ -1,0 +1,6 @@
+CREATE TABLE Client (
+	id INT NOT NULL PRIMARY KEY,
+	port INT NOT NULL,
+	ip_address VARCHAR(20) NOT NULL,
+	running TINYINT(1)
+);

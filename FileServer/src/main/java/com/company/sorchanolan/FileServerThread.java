@@ -8,20 +8,21 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+
+import static com.company.sorchanolan.FileServer.port;
 
 public class FileServerThread extends Thread implements Runnable {
   private volatile boolean running = true;
   private Socket socket = null;
-  private FileServer server = null;
-  private int port = -1;
   private BufferedReader inFromClient = null;
   private DataOutputStream outToClient = null;
   private ObjectMapper mapper = new ObjectMapper();
+  private Dao dao = null;
 
-  public FileServerThread(FileServer server, Socket socket) {
-    this.server = server;
+  public FileServerThread(Dao dao, Socket socket) {
+    this.dao = dao;
     this.socket = socket;
-    port = socket.getPort();
     mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
   }
 
@@ -51,22 +52,40 @@ public class FileServerThread extends Thread implements Runnable {
   }
 
   private void processRequest(String clientMessage) throws Exception {
-    Request request = mapper.readValue(clientMessage, Request.class);
-    if (request.getWriteCommand()) {
-      processWriteRequest(request);
-    } else {
-      processReadRequest(request);
+    if (clientMessage.startsWith("newclient")) {
+      newClient(clientMessage.replace("newclient", ""));
+    }
+    else if (clientMessage.startsWith("kill")) {
+      dao.clientOffline(Integer.parseInt(clientMessage.replace("kill", "")));
+    }
+    else {
+      Request request = mapper.readValue(clientMessage, Request.class);
+      if (request.getWriteCommand()) {
+        processWriteRequest(request);
+      } else {
+        processReadRequest(request);
+      }
     }
   }
 
   private void processReadRequest(Request request) throws Exception {
     String body = "";
-    if (Files.exists(Paths.get("Files/" + request.getFileName()))) {
-      body = String.join("\n", Files.readAllLines(Paths.get("Files/" + request.getFileName())));
+    String path = "../Files_"  + port + "/" + request.getFileName();
+    if (Files.exists(Paths.get(path))) {
+      body = String.join("\n", Files.readAllLines(Paths.get(path)));
     } else {
-      Path path = Paths.get("Files/" + request.getFileName());
-      Files.createFile(path);
-      new UpdateDirectory();
+      Path directoryPath = Paths.get("../Files_"  + port + "/");
+      if (!Files.exists(directoryPath)) {
+        Files.createDirectory(directoryPath);
+      }
+      Path filePath = Paths.get(path);
+      Files.createFile(filePath);
+      new UpdateDirectory(dao);
+    }
+
+    List<Integer> fileIds = dao.getFile(request.getFileName());
+    if (!fileIds.isEmpty()) {
+      request.setFileId(fileIds.get(0));
     }
 
     request.setBody(body);
@@ -75,11 +94,17 @@ public class FileServerThread extends Thread implements Runnable {
   }
 
   private void processWriteRequest(Request request) throws Exception {
-    File file = new File("Files/" + request.getFileName());
+    File file = new File("../Files_"  + port + "/" + request.getFileName());
     FileWriter fileWriter = new FileWriter(file, false);
     fileWriter.write(request.getBody());
     fileWriter.close();
 
     outToClient.writeBytes(mapper.writeValueAsString(request.withAccess(false)) + "\n");
+  }
+
+  private void newClient(String message) throws Exception {
+    Client client = mapper.readValue(message, Client.class);
+    client.setRunning(true);
+    dao.addNewClient(client);
   }
 }

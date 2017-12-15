@@ -5,19 +5,22 @@ public class Request {
   private boolean writeAccess;
   private String fileName;
   private String body;
+  private int fileId;
 
   public Request() {
     this.writeCommand = false;
     this.writeAccess = false;
     this.fileName = "";
     this.body = "";
+    this.fileId = -1;
   }
 
-  public Request(boolean command, boolean access, String fileName, String body) {
+  public Request(boolean command, boolean access, String fileName, String body, int fileId) {
     this.writeCommand = command;
     this.writeAccess = access;
     this.fileName = fileName;
     this.body = body;
+    this.fileId = fileId;
   }
 
   public boolean getWriteCommand() {
@@ -36,6 +39,10 @@ public class Request {
     return body;
   }
 
+  public int getFileId() {
+    return fileId;
+  }
+
   public void setWriteCommand(boolean writeCommand) {
     this.writeCommand = writeCommand;
   }
@@ -50,6 +57,10 @@ public class Request {
 
   public void setBody(String body) {
     this.body = body;
+  }
+
+  public void setFileId(int fileId) {
+    this.fileId = fileId;
   }
 
   public Request withAccess(boolean access) {

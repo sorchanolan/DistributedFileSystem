@@ -16,12 +16,17 @@ public class Editor implements ActionListener {
   private JMenuItem edit = new JMenuItem("Edit");
   private JMenuItem save = new JMenuItem("Finish Editing");
   private String fileName = "";
+  private int fileId = -1;
   private RequestManager requestManager = null;
   private Request request = new Request();
 
   public Editor() throws Exception {
     requestManager = new RequestManager();
     display(request);
+    newFile.addActionListener(this);
+    open.addActionListener(this);
+    edit.addActionListener(this);
+    save.addActionListener(this);
   }
 
   private JPanel createPanel(Request request) {
@@ -38,17 +43,13 @@ public class Editor implements ActionListener {
   public void display(Request request) {
     frame = new JFrame(request.getFileName());
     JMenuBar menuBar = new JMenuBar();
+    addOpenMenu();
     menuBar.add(open);
     menuBar.add(newFile);
     if (!request.getFileName().isEmpty()) {
       menuBar.add(edit);
       menuBar.add(save);
     }
-    addOpenMenu();
-    newFile.addActionListener(this);
-    open.addActionListener(this);
-    edit.addActionListener(this);
-    save.addActionListener(this);
     frame.setJMenuBar(menuBar);
     //frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setContentPane(createPanel(request));
@@ -70,6 +71,7 @@ public class Editor implements ActionListener {
             Request request = new Request();
             try {
               request = requestManager.openFile(correctFileName(fileName));
+              fileId = request.getFileId();
             } catch (Exception e) {
               e.printStackTrace();
             }
@@ -87,15 +89,17 @@ public class Editor implements ActionListener {
   @Override
   public void actionPerformed(ActionEvent ae) {
     if (ae.getSource() == newFile) {
+      fileName = null;
       fileName = JOptionPane.showInputDialog(frame, "Please enter file name:");
+      frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
       if (fileName != null) {
         Request request = new Request();
         try {
           request = requestManager.newFile(correctFileName(fileName));
+          fileId = request.getFileId();
         } catch (Exception e) {
           e.printStackTrace();
         }
-        frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
         display(request);
       }
     }
@@ -103,23 +107,35 @@ public class Editor implements ActionListener {
     if (ae.getSource() == edit) {
       Request request = new Request();
       try {
-        request = requestManager.editFile(correctFileName(fileName));
+        request = requestManager.editFile(correctFileName(fileName), fileId);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      if (request.getWriteAccess()) {
+        frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+        display(request);
+      } else {
+        JOptionPane.showMessageDialog(frame, "Sorry, this file is not currently accessible for editing. You will be notified when editing is possible.");
+      }
+    }
+
+    if (ae.getSource() == save) {
+      Request request = new Request();
+      try {
+        request = requestManager.saveFile(correctFileName(fileName), editor.getText(), fileId);
       } catch (Exception e) {
         e.printStackTrace();
       }
       frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
       display(request);
     }
+  }
 
-    if (ae.getSource() == save) {
-      Request request = new Request();
-      try {
-        request = requestManager.saveFile(correctFileName(fileName), editor.getText());
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-      frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+  public void fileUnlocked(int fileId) throws Exception {
+    if (this.fileId == fileId) {
+      request = requestManager.editFile(fileName, fileId);
       display(request);
+      JOptionPane.showMessageDialog(frame, "Your file " + fileName + "is now unlocked for editing.");
     }
   }
 

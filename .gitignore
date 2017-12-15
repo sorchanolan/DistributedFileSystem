@@ -5,3 +5,5 @@ ClientProxy/.idea
 ClientProxy/target
 .idea/*
 DirectoryService/.idea
+FileServer/Files/*
+Files_*
